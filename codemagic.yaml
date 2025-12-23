@@ -5,7 +5,7 @@ workflows:
     instance_type: mac_mini_m1
     environment:
       vars:
-        EXPO_PUBLIC_API_BASE_URL: "http://api.klordenergy.com:4001"
+        EXPO_PUBLIC_API_BASE_URL: "https://api.klordenergy.com"
       node: 20.19.0
       npm: latest
     scripts:
