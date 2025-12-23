@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+.expo/
+.expo-shared/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+dist/
+android/
+ios/
+.expo-shared/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Firebase
+firebase-adminsdk*.json
+
+# Scripts
+eas-build-pre-install.sh
+patch-gradle.js
+
+# Misc
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/

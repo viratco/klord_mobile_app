@@ -1,0 +1,10 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "bundler"
+  },
+  "exclude": ["node_modules"]
+}
