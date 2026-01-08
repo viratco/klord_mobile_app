@@ -1,12 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TextInput, Pressable, KeyboardAvoidingView, Platform, Alert, ScrollView, useWindowDimensions } from 'react-native';
-import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
-import { PhoneAuthProvider, signInWithCredential } from 'firebase/auth';
-import { auth, app } from '../../utils/firebase';
+import { auth } from '../../utils/firebase';
 import { BouncyPressable } from '../../components/BouncyPressable';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons, Feather, AntDesign, FontAwesome } from '@expo/vector-icons';
-import { setAuthToken } from '../../utils/auth';
+import { setAuthToken, setUserRole } from '../../utils/auth';
 import { BASE_URL } from '../../utils/config';
 
 interface AuthScreenProps {
@@ -27,9 +25,8 @@ export default function AuthScreen({ onLogin, onSignUp, onBack }: AuthScreenProp
   const [adminOtpRequired, setAdminOtpRequired] = React.useState(false);
   const [adminOtp, setAdminOtp] = React.useState('');
 
-  // Firebase Phone Auth state
-  const recaptchaVerifier = React.useRef<FirebaseRecaptchaVerifierModal>(null);
-  const [verificationId, setVerificationId] = React.useState<string | null>(null);
+  // React Native Firebase Phone Auth state
+  const [confirm, setConfirm] = React.useState<any>(null);
 
   const { width, height } = useWindowDimensions();
 
@@ -55,7 +52,7 @@ export default function AuthScreen({ onLogin, onSignUp, onBack }: AuthScreenProp
   const submitLabel = loading
     ? 'Please wait...'
     : isCustomer
-      ? verificationId
+      ? confirm
         ? 'Log In'
         : 'Send OTP'
       : adminOtpRequired
@@ -95,37 +92,38 @@ export default function AuthScreen({ onLogin, onSignUp, onBack }: AuthScreenProp
       const trimmedPhone = phone.trim();
       const fullPhone = trimmedPhone.startsWith('+') ? trimmedPhone : `+91${trimmedPhone}`;
 
-      if (!verificationId) {
-        // Step 1: Send OTP via Firebase
+      if (!confirm) {
+        // Step 1: Send OTP via React Native Firebase
         console.log('[Auth] Starting Firebase phone verification for:', fullPhone);
-        auth.languageCode = 'en'; // Ensure SMS is in English
-        const provider = new PhoneAuthProvider(auth);
-        const verId = await provider.verifyPhoneNumber(
-          fullPhone,
-          recaptchaVerifier.current!
-        );
 
-        console.log('[Auth] Received verificationId:', verId);
-        setVerificationId(verId);
+        const confirmation = await auth().signInWithPhoneNumber(fullPhone);
+        setConfirm(confirmation);
+
+        console.log('[Auth] OTP sent successfully');
         Alert.alert('OTP Sent', 'Please check your messages for the verification code.');
         return;
       }
 
       // Step 2: Verify OTP
-      const credential = PhoneAuthProvider.credential(
-        verificationId,
-        otp.trim()
-      );
+      let idToken;
 
-      const userCredential = await signInWithCredential(auth, credential);
-      const idToken = await userCredential.user.getIdToken();
+      // Check if auto-verification already happened (Android)
+      const currentUser = auth().currentUser;
+      if (currentUser) {
+        console.log('[Auth] User already signed in (Auto-verified)');
+        idToken = await currentUser.getIdToken();
+      } else {
+        // Normal manual verification
+        const userCredential = await confirm.confirm(otp.trim());
+        idToken = await userCredential.user.getIdToken();
+      }
 
       // Step 3: Send Firebase ID Token to our backend for session
       const customerData = await fetchJson(`${BASE_URL}/api/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          mobile: trimmedPhone, // and original phone if needed
+          mobile: trimmedPhone,
           firebaseToken: idToken,
           ...(referralCode.trim() ? { referralCode: referralCode.trim().toUpperCase() } : {}),
         }),
@@ -134,11 +132,23 @@ export default function AuthScreen({ onLogin, onSignUp, onBack }: AuthScreenProp
       const token = customerData?.token || customerData?.accessToken || customerData?.jwt || customerData?.data?.token;
       if (token) {
         await setAuthToken(String(token));
+        await setUserRole('customer');
       }
       onLogin?.('customer');
     } catch (error: any) {
+      console.log('[Auth] Error:', error.code, error.message);
       if (error?.code === 'auth/invalid-verification-code') {
         Alert.alert('Login failed', 'Invalid OTP code. Please try again.');
+      } else if (error?.code === 'auth/session-expired') {
+        Alert.alert('OTP Expired', 'This code has expired. Please request a new one.', [
+          {
+            text: 'OK',
+            onPress: () => {
+              setConfirm(null); // Reset to allow sending new OTP
+              setOtp('');
+            }
+          }
+        ]);
       } else {
         Alert.alert('Login failed', error?.message || 'Unable to process request');
       }
@@ -164,6 +174,7 @@ export default function AuthScreen({ onLogin, onSignUp, onBack }: AuthScreenProp
         const token = verifyResult?.token || verifyResult?.accessToken || verifyResult?.jwt || verifyResult?.data?.token;
         if (token) {
           await setAuthToken(String(token));
+          await setUserRole(panelRole);
         }
         setAdminOtpRequired(false);
         setAdminOtp('');
@@ -189,6 +200,7 @@ export default function AuthScreen({ onLogin, onSignUp, onBack }: AuthScreenProp
       const token = result?.token || result?.accessToken || result?.jwt || result?.data?.token;
       if (token) {
         await setAuthToken(String(token));
+        await setUserRole(panelRole);
       }
 
       onLogin?.(panelRole);
@@ -349,28 +361,12 @@ export default function AuthScreen({ onLogin, onSignUp, onBack }: AuthScreenProp
             <Text style={styles.primaryText}>{submitLabel}</Text>
           </BouncyPressable>
 
-          <View style={styles.socialRow}>
-            <BouncyPressable style={styles.socialButton}>
-              <AntDesign name="google" size={18} color="#f97316" />
-            </BouncyPressable>
-            <BouncyPressable style={styles.socialButton}>
-              <AntDesign name="twitter" size={18} color="#38bdf8" />
-            </BouncyPressable>
-            <BouncyPressable style={styles.socialButton}>
-              <FontAwesome name="facebook" size={18} color="#3b82f6" />
-            </BouncyPressable>
-          </View>
 
-          <BouncyPressable style={styles.signupRow} onPress={onSignUp}>
-            <Text style={styles.signupText}>Don’t have an account? <Text style={styles.signupEmphasis}>Sign Up</Text></Text>
-          </BouncyPressable>
+
+
         </ScrollView>
       </View>
-      <FirebaseRecaptchaVerifierModal
-        ref={recaptchaVerifier}
-        firebaseConfig={app.options}
-        attemptInvisibleVerification={true}
-      />
+      {/* React Native Firebase handles reCAPTCHA automatically - no component needed */}
     </KeyboardAvoidingView>
   );
 }

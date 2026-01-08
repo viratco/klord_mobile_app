@@ -18,6 +18,38 @@ export default function StaffDashboard({ onBack, onOpenTasks, onOpenSettings, on
   const [tick, setTick] = React.useState(0); // rerender ticker
   const [savedLog, setSavedLog] = React.useState<{ date: string; seconds: number } | null>(null);
 
+  // Stats state
+  const [stats, setStats] = React.useState({ assigned: 0, completed: 0 });
+
+  React.useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const token = await getAuthToken();
+        const res = await fetch(`${BASE_URL}/api/staff/my-leads`, {
+          headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          // Assigned: Active jobs (progress < 100%)
+          // Completed: Finished jobs (progress = 100%)
+          // Progress logic matches staffTasks.tsx
+          let doneCount = 0;
+          data.forEach((lead: any) => {
+            const steps = Array.isArray(lead?.steps) ? lead.steps : [];
+            const total = steps.length || 12;
+            const completed = steps.filter((s: any) => !!s?.completed).length;
+            if (completed >= total) doneCount++;
+          });
+          setStats({ assigned: data.length - doneCount, completed: doneCount });
+        }
+      } catch (e) {
+        console.warn('[StaffDashboard] fetch stats failed', e);
+      }
+    };
+    fetchStats();
+  }, []);
+
   // Animations for record button
   const scaleAnim = React.useRef(new Animated.Value(1)).current; // bounce on start/end
   const pulseAnim = React.useRef(new Animated.Value(0)).current; // 0..1 for outer ripple
@@ -118,7 +150,7 @@ export default function StaffDashboard({ onBack, onOpenTasks, onOpenSettings, on
         try {
           const j = await resp.json();
           if (j && typeof j.seconds === 'number') total = j.seconds;
-        } catch {}
+        } catch { }
         setSavedLog({ date: dateStr, seconds: total });
       }
     } catch (e) {
@@ -156,7 +188,7 @@ export default function StaffDashboard({ onBack, onOpenTasks, onOpenSettings, on
     <View style={styles.container}>
       <StatusBar style="dark" />
       <LinearGradient
-        colors={[ '#ECECEC', '#E6E6E8', '#EDE5D6', '#F3DDAF', '#F7CE73' ]}
+        colors={['#ECECEC', '#E6E6E8', '#EDE5D6', '#F3DDAF', '#F7CE73']}
         locations={[0, 0.18, 0.46, 0.74, 1]}
         start={{ x: 0.0, y: 0.1 }}
         end={{ x: 1.0, y: 1.0 }}
@@ -176,7 +208,7 @@ export default function StaffDashboard({ onBack, onOpenTasks, onOpenSettings, on
                 <Ionicons name="arrow-back" size={18} color="#1c1c1e" />
               </BlurView>
             </Pressable>
-            <Pressable style={styles.glassDropdown} hitSlop={10} onPress={() => {}}>
+            <Pressable style={styles.glassDropdown} hitSlop={10} onPress={() => { }}>
               <BlurView intensity={24} tint="light" style={styles.glassDropdown}>
                 <View style={styles.dropdownInner}>
                   <Text style={styles.dropdownLabel}>My queue</Text>
@@ -193,92 +225,45 @@ export default function StaffDashboard({ onBack, onOpenTasks, onOpenSettings, on
             {/* Stats */}
             <View style={styles.statsRowColumns}>
               <View style={styles.statsColumn}>
-                <View style={[styles.statCard, styles.statCardYellow]}> 
+                <Pressable
+                  style={[styles.statCard, styles.statCardYellow]}
+                  onPress={onOpenTasks}
+                  hitSlop={8}
+                >
                   <Text style={styles.statLabel}>Assigned bookings</Text>
-                  <Text style={styles.statValue}>8</Text>
+                  <Text style={styles.statValue}>{stats.assigned}</Text>
                   <Text style={styles.statSub}>View tasks</Text>
-                  <View style={[styles.arrowPill, styles.arrowPillBlack]}> 
+                  <View style={[styles.arrowPill, styles.arrowPillBlack]}>
                     <Ionicons name="arrow-forward" size={16} color="#F5CE57" style={styles.arrowNE} />
                   </View>
-                </View>
-                <Pressable style={[styles.statCard, styles.statCardDark]} onPress={() => onOpenComplaints?.()} accessibilityRole="button" hitSlop={8}> 
+                </Pressable>
+                <Pressable style={[styles.statCard, styles.statCardDark]} onPress={() => onOpenComplaints?.()} accessibilityRole="button" hitSlop={8}>
                   <Text style={[styles.statLabel, { color: 'rgba(255,255,255,0.85)' }]}>Complaints call</Text>
                   <Text style={[styles.statValue, { color: '#FFFFFF' }]}>3</Text>
                   <Text style={[styles.statSub, { color: 'rgba(255,255,255,0.75)' }]}>Calls today</Text>
-                  <View style={[styles.arrowPill, styles.arrowPillAlt]}> 
+                  <View style={[styles.arrowPill, styles.arrowPillAlt]}>
                     <Ionicons name="arrow-forward" size={16} color="#1c1c1e" style={styles.arrowNE} />
                   </View>
                 </Pressable>
               </View>
               <View style={styles.statsColumn}>
-                <View style={[styles.statCard, styles.statCardDark]}> 
+                <View style={[styles.statCard, styles.statCardDark]}>
                   <Text style={[styles.statLabel, { color: 'rgba(255,255,255,0.85)' }]}>Completed</Text>
-                  <Text style={[styles.statValue, { color: '#FFFFFF' }]}>15</Text>
-                  <Text style={[styles.statSub, { color: 'rgba(255,255,255,0.75)' }]}>Past 7 days</Text>
-                  <View style={[styles.arrowPill, styles.arrowPillAlt]}> 
-                    <Ionicons name="arrow-forward" size={16} color="#1c1c1e" style={styles.arrowNE} />
-                  </View>
+                  <Text style={[styles.statValue, { color: '#FFFFFF' }]}>{stats.completed}</Text>
+                  <Text style={[styles.statSub, { color: 'rgba(255,255,255,0.75)' }]}>Total finished</Text>
                 </View>
-                <Pressable style={[styles.statCard, styles.statCardYellow]} onPress={() => onOpenAmc?.()} accessibilityRole="button" hitSlop={8}> 
+                <Pressable style={[styles.statCard, styles.statCardYellow]} onPress={() => onOpenAmc?.()} accessibilityRole="button" hitSlop={8}>
                   <Text style={styles.statLabel}>AMC Calls</Text>
                   <Text style={styles.statValue}>2</Text>
                   <Text style={styles.statSub}>Service visits</Text>
-                  <View style={[styles.arrowPill, styles.arrowPillBlack]}> 
+                  <View style={[styles.arrowPill, styles.arrowPillBlack]}>
                     <Ionicons name="arrow-forward" size={16} color="#F5CE57" style={styles.arrowNE} />
                   </View>
                 </Pressable>
               </View>
             </View>
 
-            {/* Work timer */}
-            <View style={styles.quickWrap}>
-              <BlurView intensity={24} tint="light" style={styles.quickCard}>
-                <Text style={styles.quickTitle}>Start your work</Text>
-                <View style={styles.workRow}>
-                  <View style={{ width: 72, height: 72, alignItems: 'center', justifyContent: 'center' }}>
-                    {/* Pulse ring */}
-                    {isRunning && (
-                      <Animated.View
-                        style={[
-                          styles.pulseRing,
-                          {
-                            opacity: pulseAnim.interpolate({ inputRange: [0, 1], outputRange: [0.5, 0] }),
-                            transform: [{ scale: pulseAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.8] }) }],
-                          },
-                        ]}
-                      />
-                    )}
-                    {/* Record button */}
-                    <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-                      <Pressable onPress={onStartOrResume} style={[styles.recordBtn, (isRunning || isPaused) && styles.recordBtnActive]} accessibilityRole="button">
-                        <View style={[styles.recordDot, (isRunning || isPaused) && styles.recordDotActive]} />
-                      </Pressable>
-                    </Animated.View>
-                  </View>
-                  <View style={styles.timerCol}>
-                    <Text style={styles.timerLabel}>
-                      {isRunning ? 'Recording time…' : (isPaused ? 'Paused' : 'Tap to start recording')}
-                    </Text>
-                    <Text style={styles.timerValue}>{fmtTime(totalSeconds)}</Text>
-                  </View>
-                </View>
-                <View style={{ flexDirection: 'row', gap: 12, marginTop: 14 }}>
-                  <Pressable
-                    onPress={onPause}
-                    style={[styles.ctrlBtn, (!isWorking || isPaused) && styles.ctrlBtnDisabled]}
-                    disabled={!isWorking || isPaused}
-                  >
-                    <Text style={[styles.ctrlBtnText, (!isWorking || isPaused) && styles.ctrlBtnTextDisabled]}>Pause</Text>
-                  </Pressable>
-                  <Pressable onPress={onEndWorkToday} style={[styles.ctrlBtn, styles.ctrlBtnDanger]}>
-                    <Text style={[styles.ctrlBtnText, styles.ctrlBtnTextDanger]}>End work for today</Text>
-                  </Pressable>
-                </View>
-                {!!accumulatedSec && !isWorking && (
-                  <Text style={styles.timerHint}>Session paused. Press the red button to resume.</Text>
-                )}
-              </BlurView>
-            </View>
+            {/* Work timer removed as per request */}
 
             {savedLog && (
               <View style={[styles.quickWrap, { marginTop: 12 }]}>

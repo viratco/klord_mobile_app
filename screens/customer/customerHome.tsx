@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView, Dimensions, Image, Animated } from 'react-native';
+import { BASE_URL } from '../../utils/config';
 import { StatusBar } from 'expo-status-bar';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -113,7 +114,7 @@ export default function CustomerDashboard({ onBack, onOpenBookings, onOpenCalcul
   const [bookingCount, setBookingCount] = React.useState<number | null>(null);
   const [bookingErr, setBookingErr] = React.useState<string | null>(null);
   const [amcCount, setAmcCount] = React.useState<number | null>(null);
-  const BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+
 
   const loadBookingCount = React.useCallback(async () => {
     try {

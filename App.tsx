@@ -6,7 +6,7 @@ import { BouncyPressable } from './components/BouncyPressable';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFonts, Inter_400Regular, Inter_500Medium, Inter_700Bold, Inter_900Black } from '@expo-google-fonts/inter';
 import { Sora_400Regular, Sora_500Medium, Sora_600SemiBold, Sora_700Bold } from '@expo-google-fonts/sora';
 import { Manrope_400Regular, Manrope_500Medium, Manrope_600SemiBold, Manrope_700Bold } from '@expo-google-fonts/manrope';
@@ -206,6 +206,27 @@ export default function App() {
   });
 
 
+  // Persistent Login Logic
+  const [initialRoute, setInitialRoute] = React.useState<keyof RootStackParamList | null>(null);
+
+  React.useEffect(() => {
+    checkAuth();
+  }, []);
+
+  async function checkAuth() {
+    try {
+      const { getUserRole } = require('./utils/auth');
+      const role = await getUserRole();
+
+      if (role === 'customer') setInitialRoute('CustomerDashboard');
+      else if (role === 'staff') setInitialRoute('StaffDashboard');
+      else if (role === 'admin') setInitialRoute('AdminDashboard');
+      else setInitialRoute('Onboarding');
+    } catch (e) {
+      setInitialRoute('Onboarding');
+    }
+  }
+
   React.useEffect(() => {
     if (!fontsLoaded) return;
     const textComponent = Text as any;
@@ -218,15 +239,16 @@ export default function App() {
     textComponent.defaultProps.style = { ...existingStyle, fontFamily: 'Manrope_400Regular' };
   }, [fontsLoaded]);
 
-  if (!fontsLoaded) {
-    return null;
+  // Wait for both fonts and auth check
+  if (!fontsLoaded || !initialRoute) {
+    return null; // Or return a SplashScreen component here
   }
 
   return (
     <SafeAreaProvider>
       <View style={styles.appContainer}>
         <NavigationContainer>
-          <Stack.Navigator id={undefined} initialRouteName="Onboarding" screenOptions={{ headerShown: false }}>
+          <Stack.Navigator id={undefined} initialRouteName={initialRoute} screenOptions={{ headerShown: false }}>
             <Stack.Screen name="Onboarding">
               {({ navigation }) => (
                 <OnboardingScreen onGetStarted={() => navigation.navigate('Slide1')} />
@@ -295,7 +317,11 @@ export default function App() {
               {({ navigation }) => (
                 <CustomerSettingsScreen
                   onBack={() => navigation.goBack()}
-                  onSignOut={() => navigation.reset({ index: 0, routes: [{ name: 'Auth' }] })}
+                  onSignOut={async () => {
+                    const { clearAuth } = require('./utils/auth');
+                    await clearAuth();
+                    navigation.reset({ index: 0, routes: [{ name: 'Auth' }] });
+                  }}
                   onGoHome={() => navigation.navigate('CustomerDashboard')}
                   onOpenBookings={() => navigation.navigate('Bookings')}
                   onOpenCalculator={() => navigation.navigate('Calculator')}
@@ -316,6 +342,7 @@ export default function App() {
                   onOpenSettings={() => navigation.navigate('CustomerSettings')}
                   onOpenPosts={() => navigation.navigate('CustomerCode')}
                   onOpenBookings={() => navigation.navigate('Bookings')}
+                  onGoHome={() => navigation.navigate('CustomerDashboard')}
                 />
               )}
             </Stack.Screen>
@@ -431,7 +458,11 @@ export default function App() {
                 <FifthStep
                   onBack={() => navigation.goBack()}
                   onSubmit={() => {
-                    navigation.navigate('Bookings');
+                    // Reset stack to remove wizard steps so Back button goes to Dashboard
+                    navigation.reset({
+                      index: 1,
+                      routes: [{ name: 'CustomerDashboard' }, { name: 'Bookings' }],
+                    });
                   }}
                   panelType={panelType ?? undefined}
                   category={selectedCategory ?? undefined}
@@ -442,6 +473,7 @@ export default function App() {
                   billingCycle={categorySubmitData?.billingCycle}
                   pincode={categorySubmitData?.pincode}
                   provider={categorySubmitData?.provider ?? null}
+
                   budget={categorySubmitData?.budget}
                   finance={finance ?? undefined}
                 />
@@ -532,7 +564,11 @@ export default function App() {
               {({ navigation }) => (
                 <StaffSettingsScreen
                   onBack={() => navigation.goBack()}
-                  onSignOut={() => navigation.reset({ index: 0, routes: [{ name: 'Auth' }] })}
+                  onSignOut={async () => {
+                    const { clearAuth } = require('./utils/auth');
+                    await clearAuth();
+                    navigation.reset({ index: 0, routes: [{ name: 'Auth' }] });
+                  }}
                 />
               )}
             </Stack.Screen>
@@ -626,7 +662,11 @@ export default function App() {
               {({ navigation }) => (
                 <AdminSettingsScreen
                   onBack={() => navigation.goBack()}
-                  onSignOut={() => navigation.reset({ index: 0, routes: [{ name: 'Auth' }] })}
+                  onSignOut={async () => {
+                    const { clearAuth } = require('./utils/auth');
+                    await clearAuth();
+                    navigation.reset({ index: 0, routes: [{ name: 'Auth' }] });
+                  }}
                   onGoHome={() => navigation.navigate('AdminDashboard')}
                   onOpenBookings={() => navigation.navigate('AdminBooking')}
                   onOpenStaff={() => navigation.navigate('AdminStaff')}
@@ -660,6 +700,7 @@ export default function App() {
 
 // Onboarding screen
 function OnboardingScreen({ onGetStarted }: { onGetStarted?: () => void }) {
+  const insets = useSafeAreaInsets();
   const handleGetStarted = React.useCallback(async () => {
     try {
       if (Platform.OS === 'ios') {
@@ -777,7 +818,7 @@ function OnboardingScreen({ onGetStarted }: { onGetStarted?: () => void }) {
         {/* Liquid glass Get Started button */}
         <GlassButton
           label="Get Started"
-          style={{ position: 'absolute', left: 20, right: 20, bottom: 34 }}
+          style={{ position: 'absolute', left: 20, right: 20, bottom: 34 + (insets.bottom || 0) }}
           onPress={handleGetStarted}
         />
       </LinearGradient>

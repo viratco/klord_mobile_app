@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, Animated, PanResponder, Dimensions, Easing, Pressable, ActivityIndicator } from 'react-native';
+import { BASE_URL } from '../../utils/config';
 import { StatusBar } from 'expo-status-bar';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -32,7 +33,7 @@ export default function BookingDetails({ onBack, onViewDetails, booking }: Booki
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
-  const BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+
 
   React.useEffect(() => {
     let mounted = true;

@@ -41,10 +41,10 @@ export default function CustomerPost({
     ]).start();
   }, [copiedAnim]);
 
-  const [levelPercents, setLevelPercents] = React.useState<number[]>([2.0, 1.0, 1.0]);
+  const [levelPercents, setLevelPercents] = React.useState<number[]>([2.0, 2.0, 2.0, 2.0, 2.0]);
   const [maxPayout, setMaxPayout] = React.useState<number>(4);
-  const [counts, setCounts] = React.useState<{ a1: number; a2: number; a3: number }>({ a1: 0, a2: 0, a3: 0 });
-  const [earnings, setEarnings] = React.useState<{ a1: number; a2: number; a3: number }>({ a1: 0, a2: 0, a3: 0 });
+  const [counts, setCounts] = React.useState<{ a1: number; a2: number; a3: number; a4: number; a5: number }>({ a1: 0, a2: 0, a3: 0, a4: 0, a5: 0 });
+  const [earnings, setEarnings] = React.useState<{ a1: number; a2: number; a3: number; a4: number; a5: number }>({ a1: 0, a2: 0, a3: 0, a4: 0, a5: 0 });
   const [recent, setRecent] = React.useState<Array<{ amount: number; level: number; mobile: string; createdAt: string }>>([]);
 
   const refreshProfile = React.useCallback(async () => {
@@ -72,8 +72,8 @@ export default function CustomerPost({
       if (!resp.ok) return;
       const data = await resp.json();
       if (data) {
-        setCounts(data.counts ?? { a1: 0, a2: 0, a3: 0 });
-        setEarnings(data.earnings ?? { a1: 0, a2: 0, a3: 0 });
+        setCounts(data.counts ?? { a1: 0, a2: 0, a3: 0, a4: 0, a5: 0 });
+        setEarnings(data.earnings ?? { a1: 0, a2: 0, a3: 0, a4: 0, a5: 0 });
         if (data.settings?.levelPercents) setLevelPercents(data.settings.levelPercents);
         if (typeof data.settings?.maxPayoutPercent === 'number') setMaxPayout(data.settings.maxPayoutPercent);
       }
@@ -188,9 +188,7 @@ export default function CustomerPost({
                   </View>
                 </View>
                 <Text style={styles.subtleText}>Invite friends. Earn up to {maxPayout}% from your network’s purchases across levels.</Text>
-                <View style={styles.pillRow}>
-                  <View style={styles.blackPill}><Text style={styles.blackPillText}>MLM Matrix</Text></View>
-                </View>
+
               </BlurView>
             </View>
 
@@ -201,7 +199,7 @@ export default function CustomerPost({
                   <Text style={styles.summaryTitle}>Earning Distribution</Text>
                   <View style={styles.capBadge}><Text style={styles.capBadgeText}>Max {maxPayout}% cap</Text></View>
                 </View>
-                {(['A1', 'A2', 'A3'] as const).map((label, idx) => {
+                {(['A1', 'A2', 'A3', 'A4', 'A5'] as const).map((label, idx) => {
                   const pct = levelPercents[idx] ?? 0;
                   return (
                     <View key={label} style={styles.levelRow}>
@@ -228,27 +226,43 @@ export default function CustomerPost({
                   <View style={styles.blackPill}><Text style={styles.blackPillText}>Live</Text></View>
                 </View>
                 <View style={styles.metricsRow}>
-                  <View style={styles.metricCard}>
-                    <View style={styles.metricHeaderRow}>
-                      <View style={[styles.levelChip, styles.levelChipA1]}><Text style={styles.levelChipText}>A1</Text></View>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingRight: 20 }}>
+                    <View style={[styles.metricCard, { minWidth: 100 }]}>
+                      <View style={styles.metricHeaderRow}>
+                        <View style={[styles.levelChip, styles.levelChipA1]}><Text style={styles.levelChipText}>A1</Text></View>
+                      </View>
+                      <Text style={styles.metricValueLarge}>{counts.a1}</Text>
+                      <Text style={styles.metricLabelSubtle}>Directs</Text>
                     </View>
-                    <Text style={styles.metricValueLarge}>{counts.a1}</Text>
-                    <Text style={styles.metricLabelSubtle}>Directs</Text>
-                  </View>
-                  <View style={styles.metricCard}>
-                    <View style={styles.metricHeaderRow}>
-                      <View style={[styles.levelChip, styles.levelChipA2]}><Text style={styles.levelChipText}>A2</Text></View>
+                    <View style={[styles.metricCard, { minWidth: 100 }]}>
+                      <View style={styles.metricHeaderRow}>
+                        <View style={[styles.levelChip, styles.levelChipA2]}><Text style={styles.levelChipText}>A2</Text></View>
+                      </View>
+                      <Text style={styles.metricValueLarge}>{counts.a2}</Text>
+                      <Text style={styles.metricLabelSubtle}>Members</Text>
                     </View>
-                    <Text style={styles.metricValueLarge}>{counts.a2}</Text>
-                    <Text style={styles.metricLabelSubtle}>Members</Text>
-                  </View>
-                  <View style={styles.metricCard}>
-                    <View style={styles.metricHeaderRow}>
-                      <View style={[styles.levelChip, styles.levelChipA3]}><Text style={styles.levelChipText}>A3</Text></View>
+                    <View style={[styles.metricCard, { minWidth: 100 }]}>
+                      <View style={styles.metricHeaderRow}>
+                        <View style={[styles.levelChip, styles.levelChipA3]}><Text style={styles.levelChipText}>A3</Text></View>
+                      </View>
+                      <Text style={styles.metricValueLarge}>{counts.a3}</Text>
+                      <Text style={styles.metricLabelSubtle}>Members</Text>
                     </View>
-                    <Text style={styles.metricValueLarge}>{counts.a3}</Text>
-                    <Text style={styles.metricLabelSubtle}>Members</Text>
-                  </View>
+                    <View style={[styles.metricCard, { minWidth: 100 }]}>
+                      <View style={styles.metricHeaderRow}>
+                        <View style={[styles.levelChip, styles.levelChipA3]}><Text style={styles.levelChipText}>A4</Text></View>
+                      </View>
+                      <Text style={styles.metricValueLarge}>{counts.a4}</Text>
+                      <Text style={styles.metricLabelSubtle}>Members</Text>
+                    </View>
+                    <View style={[styles.metricCard, { minWidth: 100 }]}>
+                      <View style={styles.metricHeaderRow}>
+                        <View style={[styles.levelChip, styles.levelChipA3]}><Text style={styles.levelChipText}>A5</Text></View>
+                      </View>
+                      <Text style={styles.metricValueLarge}>{counts.a5}</Text>
+                      <Text style={styles.metricLabelSubtle}>Members</Text>
+                    </View>
+                  </ScrollView>
                 </View>
               </BlurView>
             </View>
@@ -264,7 +278,7 @@ export default function CustomerPost({
                 </View>
                 {recent.map((r, idx) => (
                   <View key={idx} style={styles.activityRow}>
-                    <View style={[styles.badgeA1, r.level === 2 ? styles.badgeA2 : r.level === 3 ? styles.badgeA3 : null]}>
+                    <View style={[styles.badgeA1, r.level === 2 ? styles.badgeA2 : r.level >= 3 ? styles.badgeA3 : null]}>
                       <Text style={styles.badgeText}>{`A${r.level}`}</Text>
                     </View>
                     <Text style={styles.activityText}>{`User ${r.mobile}`}</Text>
@@ -289,8 +303,8 @@ export default function CustomerPost({
           onOpenSettings={onOpenSettings}
           onOpenPosts={onOpenPosts}
         />
-      </SafeAreaView>
-    </View>
+      </SafeAreaView >
+    </View >
   );
 }
 

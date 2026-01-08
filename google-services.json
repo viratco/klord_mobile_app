@@ -1,0 +1,29 @@
+{
+    "project_info": {
+        "project_number": "201877204290",
+        "project_id": "klord-energy-9f18e",
+        "storage_bucket": "klord-energy-9f18e.firebasestorage.app"
+    },
+    "client": [
+        {
+            "client_info": {
+                "mobilesdk_app_id": "1:201877204290:android:bc701172d322396cfeacdb",
+                "android_client_info": {
+                    "package_name": "com.klordenergy.app"
+                }
+            },
+            "oauth_client": [],
+            "api_key": [
+                {
+                    "current_key": "AIzaSyCxy8dbYz-aVhCvjXRT7CT6DPyNjL_KDEs"
+                }
+            ],
+            "services": {
+                "appinvite_service": {
+                    "other_platform_oauth_client": []
+                }
+            }
+        }
+    ],
+    "configuration_version": "1"
+}

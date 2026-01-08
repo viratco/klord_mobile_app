@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, Animated, Easing, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ScrollView, Animated, Easing, Dimensions, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { BouncyPressable } from '../../components/BouncyPressable';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -55,9 +55,9 @@ export default function Solartype({ onBack, onNext, category, demandKW, budgetLe
   const insets = useSafeAreaInsets();
   const pretty = category === 'industrial' ? 'Industrial'
     : category === 'residential' ? 'Residential'
-    : category === 'commercial' ? 'Commercial'
-    : category === 'ground' ? 'Ground Mounted'
-    : undefined;
+      : category === 'commercial' ? 'Commercial'
+        : category === 'ground' ? 'Ground Mounted'
+          : undefined;
   const [sheetOpen, setSheetOpen] = React.useState(false);
   const [selectedWp, setSelectedWp] = React.useState<number>(370);
 
@@ -125,14 +125,25 @@ export default function Solartype({ onBack, onNext, category, demandKW, budgetLe
       setSelectedWp((prev) => (prev === 330 ? 370 : prev));
     }
   }, [recommendedKind]);
-  
+
+  // Manual override state
+  const [manualVals, setManualVals] = React.useState<{ wp: number; plates: number; kw: number } | null>(null);
+  const [editModalOpen, setEditModalOpen] = React.useState(false);
+
   // Derived values for black card (Wp selector)
-  const plates = React.useMemo(() => {
-    const targetKW = requiredKW > 0 ? requiredKW : (selectedWp * 12) / 1000; // fallback ~12 plates
+  const computedPlates = React.useMemo(() => {
+    const targetKW = requiredKW > 0 ? requiredKW : (selectedWp * 12) / 1000;
     const needed = Math.ceil((targetKW * 1000) / selectedWp);
     return Math.max(1, needed);
   }, [requiredKW, selectedWp]);
-  const totalKW = React.useMemo(() => (plates * selectedWp) / 1000, [plates, selectedWp]);
+
+  const computedTotalKW = React.useMemo(() => (computedPlates * selectedWp) / 1000, [computedPlates, selectedWp]);
+
+  // Final values to display/use
+  const plates = manualVals ? manualVals.plates : computedPlates;
+  const totalKW = manualVals ? manualVals.kw : computedTotalKW;
+  const currentWp = manualVals ? manualVals.wp : selectedWp;
+
   const SHEET_HEIGHT = Math.round(Dimensions.get('window').height * 0.65);
   const sheetProgress = React.useRef(new Animated.Value(0)).current; // 0: closed, 1: open
   const backdropOpacity = sheetProgress.interpolate({ inputRange: [0, 1], outputRange: [0, 0.35] });
@@ -205,24 +216,27 @@ export default function Solartype({ onBack, onNext, category, demandKW, budgetLe
               <Ionicons name="pencil" size={18} color="#F7CE73" />
             </BouncyPressable>
           </View>
-          
+
           {/* Black card: Wp selector and computed metrics */}
           <View style={styles.blackBlockInside}>
             <View style={styles.blackHeaderRow}>
               <Text style={styles.blackTitle}>Choose Watt Peak (Wp) &{"\n"}Required power (kW)</Text>
-              <BouncyPressable accessibilityRole="button" style={styles.blackEditBtn} onPress={openSheet}>
+              <BouncyPressable accessibilityRole="button" style={styles.blackEditBtn} onPress={() => setEditModalOpen(true)}>
                 <Ionicons name="pencil" size={16} color="#1c1c1e" />
               </BouncyPressable>
             </View>
             <View style={{ height: 10 }} />
             <View style={styles.wpRow}>
               {wpOptions.map((wp) => {
-                const active = selectedWp === wp;
+                const active = currentWp === wp;
                 return (
                   <BouncyPressable
                     key={wp}
                     accessibilityRole="button"
-                    onPress={() => setSelectedWp(wp)}
+                    onPress={() => {
+                      setSelectedWp(wp);
+                      setManualVals(null); // Clear override
+                    }}
                     style={[styles.wpChip, active && styles.wpChipActive]}
                   >
                     <Text style={[styles.wpChipText, active && styles.wpChipTextActive]}>{wp} Wp</Text>
@@ -234,7 +248,7 @@ export default function Solartype({ onBack, onNext, category, demandKW, budgetLe
             <View style={styles.metricsRow}>
               <View style={styles.metricCol}>
                 <Text style={styles.metricLabel}>Watt Peak</Text>
-                <Text style={styles.metricValue}>{selectedWp} Wp</Text>
+                <Text style={styles.metricValue}>{currentWp} Wp</Text>
               </View>
               <View style={styles.metricCol}>
                 <Text style={styles.metricLabel}>Plates</Text>
@@ -265,8 +279,8 @@ export default function Solartype({ onBack, onNext, category, demandKW, budgetLe
           <Animated.View style={[styles.sheetBackdrop, { opacity: backdropOpacity }]}>
             <BouncyPressable style={StyleSheet.absoluteFill} onPress={closeSheet} />
           </Animated.View>
-          <Animated.View style={[styles.sheetContainer, { height: SHEET_HEIGHT, transform: [{ translateY: sheetTranslateY }] }]}> 
-            <BlurView intensity={28} tint="light" style={[styles.sheetBlur, { paddingBottom: Math.max(insets.bottom, 16) }] }>
+          <Animated.View style={[styles.sheetContainer, { height: SHEET_HEIGHT, transform: [{ translateY: sheetTranslateY }] }]}>
+            <BlurView intensity={28} tint="light" style={[styles.sheetBlur, { paddingBottom: Math.max(insets.bottom, 16) }]}>
               {/* subtle inner gradient for liquid glass feel */}
               <LinearGradient
                 colors={["rgba(255,255,255,0.55)", "rgba(255,255,255,0.12)"]}
@@ -277,7 +291,7 @@ export default function Solartype({ onBack, onNext, category, demandKW, budgetLe
               <View style={styles.sheetHandleWrap}>
                 <View style={styles.sheetHandle} />
               </View>
-              <ScrollView style={styles.sheetScroll} contentContainerStyle={styles.sheetContent}> 
+              <ScrollView style={styles.sheetScroll} contentContainerStyle={styles.sheetContent}>
                 <Text style={styles.sheetTitle}>Edit panel type</Text>
                 <View style={{ height: 8 }} />
                 <BouncyPressable
@@ -318,7 +332,113 @@ export default function Solartype({ onBack, onNext, category, demandKW, budgetLe
           </Animated.View>
         </View>
       )}
+
+      {/* Using a separate function component for the modal content to manage its own state */}
+      <ManualEditModal
+        visible={editModalOpen}
+        initialValues={{ wp: currentWp, plates, kw: totalKW }}
+        onClose={() => setEditModalOpen(false)}
+        onSave={(vals) => {
+          setManualVals(vals);
+          setEditModalOpen(false);
+        }}
+      />
     </SafeAreaView>
+  );
+}
+
+// Helper component for the modal form
+function ManualEditModal({ visible, initialValues, onClose, onSave }: { visible: boolean; initialValues: { wp: number; plates: number; kw: number }; onClose: () => void; onSave: (v: { wp: number; plates: number; kw: number }) => void }) {
+  const [wp, setWp] = React.useState(String(initialValues.wp));
+  const [plates, setPlates] = React.useState(String(initialValues.plates));
+  const [kw, setKw] = React.useState(String(initialValues.kw));
+
+  // Reset when opening
+  React.useEffect(() => {
+    if (visible) {
+      setWp(String(initialValues.wp));
+      setPlates(String(initialValues.plates));
+      setKw(String(initialValues.kw));
+    }
+  }, [visible]);
+
+  const updateWp = (val: string) => {
+    setWp(val);
+    const w = Number(val);
+    const p = Number(plates);
+    if (!isNaN(w) && !isNaN(p) && p > 0) {
+      setKw(((p * w) / 1000).toFixed(2));
+    }
+  };
+
+  const updatePlates = (val: string) => {
+    setPlates(val);
+    const p = Number(val);
+    const w = Number(wp);
+    if (!isNaN(p) && !isNaN(w) && w > 0) {
+      setKw(((p * w) / 1000).toFixed(2));
+    }
+  };
+
+  const updateKw = (val: string) => {
+    setKw(val);
+    const k = Number(val);
+    const w = Number(wp);
+    if (!isNaN(k) && !isNaN(w) && w > 0) {
+      setPlates(String(Math.ceil((k * 1000) / w)));
+    }
+  };
+
+  const handleSave = () => {
+    const nWp = Number(wp) || 0;
+    const nPlates = Number(plates) || 0;
+    const nKw = Number(kw) || 0;
+    onSave({ wp: nWp, plates: nPlates, kw: nKw });
+  };
+
+  if (!visible) return null;
+
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.modalBackdrop}>
+        <View style={StyleSheet.absoluteFill}>
+          <Pressable style={{ flex: 1 }} onPress={onClose} />
+          <BlurView intensity={90} tint="light" style={{ flex: 1, position: 'absolute', width: '100%', height: '100%' }} />
+          <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }} />
+        </View>
+
+        <View style={styles.modalCard}>
+          <Text style={styles.modalTitle}>Manual Override</Text>
+          <Text style={styles.modalSubtitle}>Edit system configuration manually.</Text>
+
+          <View style={styles.inputRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.inputLabel}>Watt Peak (Wp)</Text>
+              <TextInput style={styles.modalInput} keyboardType="numeric" value={wp} onChangeText={updateWp} />
+            </View>
+            <View style={{ width: 12 }} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.inputLabel}>Plates</Text>
+              <TextInput style={styles.modalInput} keyboardType="numeric" value={plates} onChangeText={updatePlates} />
+            </View>
+          </View>
+
+          <View style={{ marginTop: 12 }}>
+            <Text style={styles.inputLabel}>Total Capacity (kW)</Text>
+            <TextInput style={styles.modalInput} keyboardType="numeric" value={kw} onChangeText={updateKw} />
+          </View>
+
+          <View style={styles.modalActions}>
+            <BouncyPressable onPress={onClose} style={styles.modalCancelBtn}>
+              <Text style={styles.modalCancelText}>Cancel</Text>
+            </BouncyPressable>
+            <BouncyPressable onPress={handleSave} style={styles.modalSaveBtn}>
+              <Text style={styles.modalSaveText}>Save Changes</Text>
+            </BouncyPressable>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
   );
 }
 
@@ -621,5 +741,85 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: 'rgba(28,28,30,0.92)'
   },
+  // Modal styles
+  modalBackdrop: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalCard: {
+    width: '85%',
+    maxWidth: 340,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 22,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.25,
+    shadowRadius: 24,
+    elevation: 8,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#1c1c1e',
+    marginBottom: 6,
+    textAlign: 'center',
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: 'rgba(28,28,30,0.6)',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  inputRow: {
+    flexDirection: 'row',
+  },
+  inputLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#1c1c1e',
+    marginBottom: 8,
+    marginLeft: 4,
+  },
+  modalInput: {
+    height: 48,
+    backgroundColor: '#F2F2F7',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1c1c1e',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 24,
+  },
+  modalCancelBtn: {
+    flex: 1,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#F2F2F7',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalCancelText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1c1c1e',
+  },
+  modalSaveBtn: {
+    flex: 1,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#F7CE73',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalSaveText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1c1c1e',
+  },
 });
-

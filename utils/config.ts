@@ -3,7 +3,7 @@
 // Fallback to LAN IP or localhost
 export const BASE_URL: string =
   (process.env.EXPO_PUBLIC_API_BASE_URL as string) ||
-  'http://13.61.187.38';
+  'https://api.klordenergy.com';
 
 if (__DEV__) {
   // Helpful console for debugging

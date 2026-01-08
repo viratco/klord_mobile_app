@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView, TextInput, Alert, KeyboardAvoidingView, Platform, Modal, FlatList, TouchableOpacity } from 'react-native';
+import { BASE_URL } from '../../utils/config';
 import { BouncyPressable } from '../../components/BouncyPressable';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -78,7 +79,7 @@ export default function FifthStep({
   const [selectionMode, setSelectionMode] = useState<'state' | 'city'>('state');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+
 
   const submit = async () => {
     try {

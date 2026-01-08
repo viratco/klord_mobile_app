@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable, Image, ActivityIndicator, ScrollView } from 'react-native';
+import { BASE_URL } from '../../utils/config';
 import { StatusBar } from 'expo-status-bar';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -9,19 +10,19 @@ import { getAuthToken } from '../../utils/auth';
 import { triggerPressHaptic } from '../../utils/haptics';
 import { fetchWithCache, getCachedValue, invalidateCache } from '../../utils/cache';
 
-export default function Bookings({ onBack, onOpenDetail, onOpenCalculator, onOpenSettings, onOpenPosts, onOpenBookings }: { onBack?: () => void; onOpenDetail?: (b: any) => void; onOpenCalculator?: () => void; onOpenSettings?: () => void; onOpenPosts?: () => void; onOpenBookings?: () => void }) {
+export default function Bookings({ onBack, onOpenDetail, onOpenCalculator, onOpenSettings, onOpenPosts, onOpenBookings, onGoHome }: { onBack?: () => void; onOpenDetail?: (b: any) => void; onOpenCalculator?: () => void; onOpenSettings?: () => void; onOpenPosts?: () => void; onOpenBookings?: () => void; onGoHome?: () => void }) {
   const [items, setItems] = React.useState<any[] | null>(null);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [error, setError] = React.useState<string | null>(null);
 
-  const BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+
 
   const load = React.useCallback(async (options?: { force?: boolean }) => {
     let cached: any[] | undefined;
     try {
       setError(null);
       if (!BASE_URL) {
-        setError('Missing EXPO_PUBLIC_API_BASE_URL');
+        setError('Missing BASE_URL configuration');
         setItems([]);
         return;
       }
@@ -185,8 +186,9 @@ export default function Bookings({ onBack, onOpenDetail, onOpenCalculator, onOpe
         </SafeAreaView>
 
         {/* Bottom navigation */}
+        {/* Bottom navigation */}
         <BottomNav
-          onGoHome={onBack}
+          onGoHome={onGoHome}
           onOpenBookings={onOpenBookings}
           onOpenCalculator={onOpenCalculator}
           onOpenSettings={onOpenSettings}
