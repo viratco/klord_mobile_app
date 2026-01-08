@@ -250,14 +250,14 @@ export default function CustomerPost({
                     </View>
                     <View style={[styles.metricCard, { minWidth: 100 }]}>
                       <View style={styles.metricHeaderRow}>
-                        <View style={[styles.levelChip, styles.levelChipA3]}><Text style={styles.levelChipText}>A4</Text></View>
+                        <View style={[styles.levelChip, styles.levelChipA4]}><Text style={styles.levelChipText}>A4</Text></View>
                       </View>
                       <Text style={styles.metricValueLarge}>{counts.a4}</Text>
                       <Text style={styles.metricLabelSubtle}>Members</Text>
                     </View>
                     <View style={[styles.metricCard, { minWidth: 100 }]}>
                       <View style={styles.metricHeaderRow}>
-                        <View style={[styles.levelChip, styles.levelChipA3]}><Text style={styles.levelChipText}>A5</Text></View>
+                        <View style={[styles.levelChip, styles.levelChipA5]}><Text style={styles.levelChipText}>A5</Text></View>
                       </View>
                       <Text style={styles.metricValueLarge}>{counts.a5}</Text>
                       <Text style={styles.metricLabelSubtle}>Members</Text>
@@ -278,7 +278,13 @@ export default function CustomerPost({
                 </View>
                 {recent.map((r, idx) => (
                   <View key={idx} style={styles.activityRow}>
-                    <View style={[styles.badgeA1, r.level === 2 ? styles.badgeA2 : r.level >= 3 ? styles.badgeA3 : null]}>
+                    <View style={[
+                      styles.badgeA1,
+                      r.level === 2 ? styles.badgeA2 :
+                        r.level === 3 ? styles.badgeA3 :
+                          r.level === 4 ? styles.badgeA4 :
+                            r.level === 5 ? styles.badgeA5 : null
+                    ]}>
                       <Text style={styles.badgeText}>{`A${r.level}`}</Text>
                     </View>
                     <Text style={styles.activityText}>{`User ${r.mobile}`}</Text>
@@ -611,6 +617,14 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 122, 255, 0.1)',
     borderColor: 'rgba(0, 122, 255, 0.45)',
   },
+  levelChipA4: {
+    backgroundColor: 'rgba(175, 82, 222, 0.1)',
+    borderColor: 'rgba(175, 82, 222, 0.45)',
+  },
+  levelChipA5: {
+    backgroundColor: 'rgba(255, 45, 85, 0.1)',
+    borderColor: 'rgba(255, 45, 85, 0.45)',
+  },
   levelChipText: {
     fontSize: 12,
     fontWeight: '800',
@@ -667,6 +681,22 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 122, 255, 0.18)',
     borderWidth: 1,
     borderColor: 'rgba(0, 122, 255, 0.45)',
+  },
+  badgeA4: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: 'rgba(175, 82, 222, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(175, 82, 222, 0.45)',
+  },
+  badgeA5: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255, 45, 85, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 45, 85, 0.45)',
   },
   badgeText: {
     fontSize: 12,
