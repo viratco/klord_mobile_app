@@ -5,7 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getAuthToken } from '../../utils/auth';
 import { triggerPressHaptic } from '../../utils/haptics';
 
@@ -486,6 +486,7 @@ function GlassCard({ children, style }: { children?: React.ReactNode; style?: an
 
 // Bottom navigation component
 function BottomNav({ onOpenBookings, onOpenCalculator, onOpenSettings, onOpenPosts }: { onOpenBookings?: () => void; onOpenCalculator?: () => void; onOpenSettings?: () => void; onOpenPosts?: () => void }) {
+  const insets = useSafeAreaInsets();
   const [active, setActive] = React.useState<'home' | 'roofs' | 'calculator' | 'posts' | 'settings'>('home');
 
   const Item = ({ id, icon, label }: { id: typeof active; icon: keyof typeof Ionicons.glyphMap; label: string }) => {
@@ -516,7 +517,7 @@ function BottomNav({ onOpenBookings, onOpenCalculator, onOpenSettings, onOpenPos
   };
 
   return (
-    <View style={styles.bottomNavWrap}>
+    <View style={[styles.bottomNavWrap, { bottom: 24 + insets.bottom }]}>
       <BlurView intensity={28} tint="dark" style={styles.bottomNav}>
         <Item id="home" icon="home-outline" label="Home" />
         <Item id="roofs" icon="grid-outline" label="Bookings" />

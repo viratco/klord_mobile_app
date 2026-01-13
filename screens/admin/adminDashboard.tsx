@@ -4,7 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BASE_URL } from '../../utils/config';
 import { getAuthToken } from '../../utils/auth';
 import { fetchWithCache, getCachedValue } from '../../utils/cache';
@@ -172,13 +172,13 @@ function buildRecentActivities(leads: any[]): RecentActivity[] {
     const name = lead?.customerName || lead?.fullName || lead?.name || lead?.email || lead?.phone || `Booking ${index + 1}`;
     const id = String(
       lead?.id ??
-        lead?._id ??
-        lead?.leadId ??
-        lead?.uuid ??
-        lead?.reference ??
-        lead?.email ??
-        lead?.phone ??
-        `booking-${index}`
+      lead?._id ??
+      lead?.leadId ??
+      lead?.uuid ??
+      lead?.reference ??
+      lead?.email ??
+      lead?.phone ??
+      `booking-${index}`
     );
     return {
       activity: { id, title: name, status, stepsLabel, timeLabel, type: 'booking' as const },
@@ -363,7 +363,7 @@ export default function AdminHome({ onBack, onOpenBookings, onOpenStaff, onOpenA
               </View>
             </Pressable>
             {/* Translucent dropdown on right */}
-            <Pressable style={styles.glassDropdown} hitSlop={10} onPress={() => {}}>
+            <Pressable style={styles.glassDropdown} hitSlop={10} onPress={() => { }}>
               <BlurView intensity={24} tint="light" style={styles.glassDropdown}>
                 <View style={styles.dropdownInner}>
                   <Text style={styles.dropdownLabel}>All roofs</Text>
@@ -385,46 +385,46 @@ export default function AdminHome({ onBack, onOpenBookings, onOpenStaff, onOpenA
             <Text style={styles.titleMain}>Admin Dashboard</Text>
 
             {/* Stat cards with additional copies below each */}
-            <View style={styles.statsRowColumns}> 
+            <View style={styles.statsRowColumns}>
               {/* Column 1: Yellow then Dark copy below */}
-              <View style={styles.statsColumn}> 
+              <View style={styles.statsColumn}>
                 {/* Yellow card */}
-                <View style={[styles.statCard, styles.statCardYellow]}> 
+                <View style={[styles.statCard, styles.statCardYellow]}>
                   <Text style={styles.statLabel}>Bookings</Text>
                   <Text style={styles.statValue}>{bookingCountDisplay}</Text>
                   <Text style={styles.statSub}>View booking</Text>
-                  <View style={[styles.arrowPill, styles.arrowPillBlack]}> 
+                  <View style={[styles.arrowPill, styles.arrowPillBlack]}>
                     <Ionicons name="arrow-forward" size={16} color="#F5CE57" style={styles.arrowNE} />
                   </View>
                 </View>
                 {/* Dark copy below yellow */}
-                <Pressable style={[styles.statCard, styles.statCardDark]} onPress={() => { void triggerPressHaptic(); onOpenCalendar?.(); }} accessibilityRole="button" hitSlop={8}> 
+                <Pressable style={[styles.statCard, styles.statCardDark]} onPress={() => { void triggerPressHaptic(); onOpenCalendar?.(); }} accessibilityRole="button" hitSlop={8}>
                   <Text style={[styles.statLabel, { color: 'rgba(255,255,255,0.85)' }]}>Calendar</Text>
                   <Text style={[styles.statValue, { color: '#FFFFFF' }]}>{staffCountDisplay}</Text>
                   <Text style={[styles.statSub, { color: 'rgba(255,255,255,0.75)' }]}>Open calendar</Text>
-                  <View style={[styles.arrowPill, styles.arrowPillAlt]}> 
+                  <View style={[styles.arrowPill, styles.arrowPillAlt]}>
                     <Ionicons name="arrow-forward" size={16} color="#1c1c1e" style={styles.arrowNE} />
                   </View>
                 </Pressable>
               </View>
 
               {/* Column 2: Dark then Yellow copy below */}
-              <View style={styles.statsColumn}> 
+              <View style={styles.statsColumn}>
                 {/* Dark card - AMC (pressable) */}
-                <Pressable style={[styles.statCard, styles.statCardDark]} onPress={() => onOpenAmc?.()} accessibilityRole="button" hitSlop={8}> 
+                <Pressable style={[styles.statCard, styles.statCardDark]} onPress={() => onOpenAmc?.()} accessibilityRole="button" hitSlop={8}>
                   <Text style={[styles.statLabel, { color: 'rgba(255,255,255,0.85)' }]}>AMC service</Text>
                   <Text style={[styles.statValue, { color: '#FFFFFF' }]}>3</Text>
                   <Text style={[styles.statSub, { color: 'rgba(255,255,255,0.75)' }]}>View AMC </Text>
-                  <View style={[styles.arrowPill, styles.arrowPillAlt]}> 
+                  <View style={[styles.arrowPill, styles.arrowPillAlt]}>
                     <Ionicons name="arrow-forward" size={16} color="#1c1c1e" style={styles.arrowNE} />
                   </View>
                 </Pressable>
                 {/* Yellow copy below dark - Complains card clickable */}
-                <Pressable style={[styles.statCard, styles.statCardYellow]} onPress={() => onOpenComplains?.()} accessibilityRole="button" hitSlop={8}> 
+                <Pressable style={[styles.statCard, styles.statCardYellow]} onPress={() => onOpenComplains?.()} accessibilityRole="button" hitSlop={8}>
                   <Text style={styles.statLabel}>Complains filed</Text>
                   <Text style={styles.statValue}>35</Text>
                   <Text style={styles.statSub}>View complains</Text>
-                  <View style={[styles.arrowPill, styles.arrowPillBlack]}> 
+                  <View style={[styles.arrowPill, styles.arrowPillBlack]}>
                     <Ionicons name="arrow-forward" size={16} color="#F5CE57" style={styles.arrowNE} />
                   </View>
                 </Pressable>
@@ -454,7 +454,7 @@ export default function AdminHome({ onBack, onOpenBookings, onOpenStaff, onOpenA
                   <View style={styles.activityList}>
                     {stats.recentActivities.map((item, idx) => (
                       <View key={item.id}>
-                        <Pressable style={styles.activityRow} onPress={() => {}} hitSlop={8}>
+                        <Pressable style={styles.activityRow} onPress={() => { }} hitSlop={8}>
                           <View style={[styles.activityStatusDot, item.status === 'completed' ? styles.activityStatusCompleted : styles.activityStatusInProgress]} />
                           <View style={styles.activityContent}>
                             <Text style={styles.activityTitle} numberOfLines={1}>{item.title}</Text>
@@ -519,6 +519,7 @@ export default function AdminHome({ onBack, onOpenBookings, onOpenStaff, onOpenA
 
 // Bottom navigation component
 function BottomNav({ onGoHome, onOpenBookings, onOpenStaff, onOpenAnalytics, onOpenSettings }: { onGoHome?: () => void; onOpenBookings?: () => void; onOpenStaff?: () => void; onOpenAnalytics?: () => void; onOpenSettings?: () => void }) {
+  const insets = useSafeAreaInsets();
   const [active, setActive] = React.useState<'home' | 'roofs' | 'staff' | 'analytics' | 'settings'>('home');
 
   const Item = ({ id, icon, label }: { id: typeof active; icon: keyof typeof Ionicons.glyphMap; label: string }) => {
@@ -551,7 +552,7 @@ function BottomNav({ onGoHome, onOpenBookings, onOpenStaff, onOpenAnalytics, onO
   };
 
   return (
-    <View style={styles.bottomNavWrap}>
+    <View style={[styles.bottomNavWrap, { bottom: 24 + insets.bottom }]}>
       <BlurView intensity={28} tint="dark" style={styles.bottomNav}>
         <Item id="home" icon="home-outline" label="Home" />
         <Item id="roofs" icon="grid-outline" label="Bookings" />
@@ -762,7 +763,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#1c1c1e',
   },
-  
+
   activityCard: {
     paddingTop: 24,
     paddingBottom: 30,

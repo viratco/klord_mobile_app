@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable, Image, ScrollView, Animated, Easing } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
@@ -293,6 +293,8 @@ export default function StaffDashboard({ onBack, onOpenTasks, onOpenSettings, on
 function BottomNav({ onOpenTasks, onOpenSettings, onOpenAnalytics }: { onOpenTasks?: () => void; onOpenSettings?: () => void; onOpenAnalytics?: () => void }) {
   const [active, setActive] = React.useState<'home' | 'tasks' | 'analytics' | 'settings'>('home');
 
+  const insets = useSafeAreaInsets();
+
   const Item = ({ id, icon, label }: { id: typeof active; icon: keyof typeof Ionicons.glyphMap; label: string }) => {
     const isActive = active === id;
     const buttonStyles = [styles.navButton, isActive ? styles.navButtonActive : styles.navButtonInactive];
@@ -317,7 +319,7 @@ function BottomNav({ onOpenTasks, onOpenSettings, onOpenAnalytics }: { onOpenTas
   };
 
   return (
-    <View style={styles.bottomNavWrap}>
+    <View style={[styles.bottomNavWrap, { bottom: 24 + insets.bottom }]}>
       <BlurView intensity={28} tint="dark" style={styles.bottomNav}>
         <Item id="home" icon="home-outline" label="Home" />
         <Item id="tasks" icon="list-outline" label="Tasks" />
