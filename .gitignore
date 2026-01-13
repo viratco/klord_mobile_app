@@ -35,7 +35,7 @@ firebase-adminsdk*.json
 
 # Scripts
 eas-build-pre-install.sh
-patch-gradle.js
+# patch-gradle.js
 
 # Misc
 *.jks
