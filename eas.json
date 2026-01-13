@@ -14,9 +14,7 @@
     "production": {
       "autoIncrement": true,
       "android": {
-        "buildType": "app-bundle",
-        "image": "latest",
-        "resourceClass": "medium"
+        "buildType": "app-bundle"
       }
     }
   },
