@@ -33,6 +33,18 @@
       "eas": {
         "projectId": "33d03baf-b167-4c66-a88d-a72972602c97"
       }
-    }
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "extraMavenRepos": [
+              "https://releases.jfrog.io/artifactory/oss-releases"
+            ]
+          }
+        }
+      ]
+    ]
   }
 }
