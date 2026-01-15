@@ -222,8 +222,7 @@ export default function CustomerDashboard({ onBack, onOpenBookings, onOpenCalcul
               <Pressable style={styles.glassDropdown} hitSlop={10} onPress={() => { }}>
                 <BlurView intensity={24} tint="light" style={styles.glassDropdown}>
                   <View style={styles.dropdownInner}>
-                    <Text style={styles.dropdownLabel}>All roofs</Text>
-                    <Ionicons name="chevron-down" size={18} color="#1c1c1e" />
+                    <Text style={styles.dropdownLabel}>Customer</Text>
                   </View>
                 </BlurView>
               </Pressable>

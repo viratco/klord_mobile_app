@@ -47,7 +47,7 @@ export default function Panelsize({ onBack, onNext, onEdit, category, electricit
     }
   }, [estimatedKW, isEditing, kwValue]);
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <LinearGradient
         colors={['#ECECEC', '#E6E6E8', '#EDE5D6', '#F3DDAF', '#F7CE73']}
         locations={[0, 0.18, 0.46, 0.74, 1]}
@@ -131,7 +131,7 @@ export default function Panelsize({ onBack, onNext, onEdit, category, electricit
       </ScrollView>
 
       {/* Bottom Continue button */}
-      <View style={styles.bottomButtonWrap}>
+      <View style={[styles.bottomButtonWrap, { bottom: 24 + insets.bottom }]}>
         <BouncyPressable
           style={styles.bottomButton}
           onPress={() => {

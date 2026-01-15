@@ -189,7 +189,7 @@ export default function Bookings({ onBack, onOpenDetail, onOpenBookings, onOpenS
         end={{ x: 1.0, y: 1.0 }}
         style={styles.gradientBackground}
       >
-        <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safeArea}>
+        <SafeAreaView edges={['top']} style={styles.safeArea}>
           <Pressable
             onPress={onBack}
             hitSlop={8}
@@ -205,7 +205,7 @@ export default function Bookings({ onBack, onOpenDetail, onOpenBookings, onOpenS
             showsVerticalScrollIndicator={false}
             contentInsetAdjustmentBehavior="never"
             bounces
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#1c1c1e" /> }
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#1c1c1e" />}
           >
             <Text style={styles.titleMain}>Bookings</Text>
             {error && (
@@ -291,6 +291,7 @@ export default function Bookings({ onBack, onOpenDetail, onOpenBookings, onOpenS
 }
 
 function BottomNav({ onGoHome, onOpenBookings, onOpenStaff, onOpenAnalytics, onOpenSettings }: { onGoHome?: () => void; onOpenBookings?: () => void; onOpenStaff?: () => void; onOpenAnalytics?: () => void; onOpenSettings?: () => void }) {
+  const insets = useSafeAreaInsets();
   const [active, setActive] = React.useState<AdminNavKey>('roofs');
 
   const Item = ({ id, icon, label }: { id: AdminNavKey; icon: keyof typeof Ionicons.glyphMap; label: string }) => {
@@ -323,7 +324,7 @@ function BottomNav({ onGoHome, onOpenBookings, onOpenStaff, onOpenAnalytics, onO
   };
 
   return (
-    <View style={styles.bottomNavWrap}>
+    <View style={[styles.bottomNavWrap, { bottom: 24 + insets.bottom }]}>
       <BlurView intensity={28} tint="dark" style={styles.bottomNav}>
         <Item id="home" icon="home-outline" label="Home" />
         <Item id="roofs" icon="grid-outline" label="Bookings" />

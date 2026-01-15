@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Pressable, TextInput, Animated, Easing, Keyboar
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
 import { triggerPressHaptic } from '../../utils/haptics';
 import { getAuthToken } from '../../utils/auth';
@@ -101,13 +101,13 @@ export default function AdminStaff({ onBack, onGoHome, onOpenBookings, onOpenAna
     <View style={styles.container}>
       <StatusBar style="dark" />
       <LinearGradient
-        colors={[ '#ECECEC', '#E6E6E8', '#EDE5D6', '#F3DDAF', '#F7CE73' ]}
+        colors={['#ECECEC', '#E6E6E8', '#EDE5D6', '#F3DDAF', '#F7CE73']}
         locations={[0, 0.18, 0.46, 0.74, 1]}
         start={{ x: 0.0, y: 0.1 }}
         end={{ x: 1.0, y: 1.0 }}
         style={styles.gradientBackground}
       >
-        <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
+        <SafeAreaView edges={['top']} style={styles.safeArea}>
           <View style={styles.header}>
             <Pressable onPress={onBack} hitSlop={10} style={styles.backPill}>
               <Ionicons name="arrow-back" size={20} color="#1c1c1e" />
@@ -226,8 +226,8 @@ export default function AdminStaff({ onBack, onGoHome, onOpenBookings, onOpenAna
                   <Pressable style={[styles.actionBtn, styles.cancelBtn]} onPress={closeAdd}>
                     <Text style={styles.actionBtnText}>Cancel</Text>
                   </Pressable>
-                  <Pressable 
-                    style={[styles.actionBtn, styles.saveBtn, saving && styles.saveBtnDisabled]} 
+                  <Pressable
+                    style={[styles.actionBtn, styles.saveBtn, saving && styles.saveBtnDisabled]}
                     onPress={handleSave}
                     disabled={saving}
                   >
@@ -254,9 +254,10 @@ export default function AdminStaff({ onBack, onGoHome, onOpenBookings, onOpenAna
 }
 
 function BottomNav({ onGoHome, onOpenBookings, onOpenAnalytics, onOpenSettings }: { onGoHome?: () => void; onOpenBookings?: () => void; onOpenAnalytics?: () => void; onOpenSettings?: () => void }) {
-  const [active, setActive] = React.useState<AdminNavKey>('staff');
+  const insets = useSafeAreaInsets();
+  const [active, setActive] = React.useState<'home' | 'roofs' | 'staff' | 'analytics' | 'settings'>('staff');
 
-  const Item = ({ id, icon, label }: { id: AdminNavKey; icon: keyof typeof Ionicons.glyphMap; label: string }) => {
+  const Item = ({ id, icon, label }: { id: typeof active; icon: keyof typeof Ionicons.glyphMap; label: string }) => {
     const isActive = active === id;
     const isStaff = id === 'staff';
     const buttonStyles = [
@@ -265,19 +266,17 @@ function BottomNav({ onGoHome, onOpenBookings, onOpenAnalytics, onOpenSettings }
     ];
     const iconColor = isStaff ? '#1c1c1e' : (isActive ? '#1c1c1e' : 'rgba(255,255,255,0.95)');
 
+    const handlePress = () => {
+      void triggerPressHaptic();
+      setActive(id);
+      if (id === 'home') onGoHome?.();
+      if (id === 'roofs') onOpenBookings?.();
+      if (id === 'analytics') onOpenAnalytics?.();
+      if (id === 'settings') onOpenSettings?.();
+    };
+
     return (
-      <Pressable
-        onPress={() => {
-          void triggerPressHaptic();
-          setActive(id);
-          if (id === 'home') onGoHome && onGoHome();
-          if (id === 'roofs') onOpenBookings && onOpenBookings();
-          if (id === 'analytics') onOpenAnalytics && onOpenAnalytics();
-          if (id === 'settings') onOpenSettings && onOpenSettings();
-        }}
-        style={styles.navItem}
-        hitSlop={10}
-      >
+      <Pressable onPress={handlePress} style={styles.navItem} hitSlop={10}>
         <View style={buttonStyles}>
           <Ionicons name={icon} size={22} color={iconColor} />
         </View>
@@ -287,7 +286,7 @@ function BottomNav({ onGoHome, onOpenBookings, onOpenAnalytics, onOpenSettings }
   };
 
   return (
-    <View style={styles.bottomNavWrap}>
+    <View style={[styles.bottomNavWrap, { bottom: 24 + insets.bottom }]}>
       <BlurView intensity={28} tint="dark" style={styles.bottomNav}>
         <Item id="home" icon="home-outline" label="Home" />
         <Item id="roofs" icon="grid-outline" label="Bookings" />

@@ -353,7 +353,7 @@ export default function AdminHome({ onBack, onOpenBookings, onOpenStaff, onOpenA
         <View style={styles.textureOverlay} />
         <View style={styles.noiseOverlay} />
 
-        <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
+        <SafeAreaView edges={['top']} style={styles.safeArea}>
           {/* Fixed Header */}
           <View style={styles.header}>
             {/* Avatar placeholder on left */}

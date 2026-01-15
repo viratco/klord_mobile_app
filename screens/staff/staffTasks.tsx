@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView, RefreshControl } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { BASE_URL } from '../../utils/config';
@@ -53,13 +53,13 @@ export default function StaffTasks({ onBack, onOpenSteps, onOpenSettings, onOpen
     <View style={styles.container}>
       <StatusBar style="dark" />
       <LinearGradient
-        colors={[ '#ECECEC', '#E6E6E8', '#EDE5D6', '#F3DDAF', '#F7CE73' ]}
+        colors={['#ECECEC', '#E6E6E8', '#EDE5D6', '#F3DDAF', '#F7CE73']}
         locations={[0, 0.18, 0.46, 0.74, 1]}
         start={{ x: 0.0, y: 0.1 }}
         end={{ x: 1.0, y: 1.0 }}
         style={styles.gradient}
       >
-        <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1 }}>
+        <SafeAreaView edges={['top']} style={{ flex: 1 }}>
           <View style={styles.header}>
             <Pressable onPress={onBack} hitSlop={10} style={styles.backPill}>
               <Ionicons name="arrow-back" size={20} color="#1c1c1e" />
@@ -68,7 +68,7 @@ export default function StaffTasks({ onBack, onOpenSteps, onOpenSettings, onOpen
             <View style={{ width: 36 }} />
           </View>
 
-          <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#1c1c1e" /> }>
+          <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#1c1c1e" />}>
             {loading ? (
               <View style={styles.infoBox}><Text style={styles.infoText}>Loading assigned tasks...</Text></View>
             ) : items.length === 0 ? (
@@ -78,8 +78,8 @@ export default function StaffTasks({ onBack, onOpenSteps, onOpenSettings, onOpen
                 const { completed, total } = computeProgress(lead);
                 const pct = Math.round((completed / Math.max(1, total)) * 100);
                 return (
-                  <Pressable 
-                    key={lead.id} 
+                  <Pressable
+                    key={lead.id}
                     style={styles.taskCard}
                     onPress={() => onOpenSteps?.(lead)}
                   >
@@ -106,6 +106,7 @@ export default function StaffTasks({ onBack, onOpenSteps, onOpenSettings, onOpen
 }
 
 function BottomNav({ onGoHome, onOpenSettings, onOpenAnalytics }: { onGoHome?: () => void; onOpenSettings?: () => void; onOpenAnalytics?: () => void }) {
+  const insets = useSafeAreaInsets();
   const [active, setActive] = React.useState<'home' | 'tasks' | 'analytics' | 'settings'>('tasks');
 
   const Item = ({ id, icon, label }: { id: typeof active; icon: keyof typeof Ionicons.glyphMap; label: string }) => {
@@ -132,7 +133,7 @@ function BottomNav({ onGoHome, onOpenSettings, onOpenAnalytics }: { onGoHome?: (
   };
 
   return (
-    <View style={styles.bottomNavWrap}>
+    <View style={[styles.bottomNavWrap, { bottom: 24 + insets.bottom }]}>
       <BlurView intensity={28} tint="dark" style={styles.bottomNav}>
         <Item id="home" icon="home-outline" label="Home" />
         <Item id="tasks" icon="list-outline" label="Tasks" />
@@ -169,7 +170,7 @@ const styles = StyleSheet.create({
   infoBox: { padding: 20, alignItems: 'center', justifyContent: 'center' },
   infoText: { fontSize: 14, color: 'rgba(28,28,30,0.7)', fontWeight: '600' },
   taskCard: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 16, paddingVertical: 18, minHeight: 96, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.88)', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' },
-  taskIcon: { width: 40, height:40, borderRadius:20, alignItems:'center', justifyContent:'center', backgroundColor:'#F5CE57', borderWidth:1, borderColor:'rgba(0,0,0,0.15)' },
+  taskIcon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: '#F5CE57', borderWidth: 1, borderColor: 'rgba(0,0,0,0.15)' },
   taskTitle: { fontSize: 14, fontWeight: '700', color: '#1c1c1e' },
   taskMeta: { fontSize: 12, color: 'rgba(0,0,0,0.6)', marginTop: 2 },
   statusPill: { paddingHorizontal: 12, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', borderWidth: 1, backgroundColor: 'rgba(76, 217, 100, 0.18)', borderColor: 'rgba(76, 217, 100, 0.45)' },

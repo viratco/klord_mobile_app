@@ -200,7 +200,7 @@ export default function StaffDashboard({ onBack, onOpenTasks, onOpenSettings, on
         <LinearGradient pointerEvents="none" colors={['rgba(0,0,0,0.06)', 'transparent']} start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 1 }} style={styles.topVignette} />
         <LinearGradient pointerEvents="none" colors={['rgba(247, 206, 115, 0.65)', 'rgba(247, 206, 115, 0)']} start={{ x: 0.5, y: 1 }} end={{ x: 0.5, y: 0 }} style={styles.bottomGlow} />
 
-        <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
+        <SafeAreaView edges={['top']} style={styles.safeArea}>
           {/* Header */}
           <View style={styles.header}>
             <Pressable onPress={onBack} hitSlop={10}>

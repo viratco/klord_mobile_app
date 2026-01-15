@@ -148,7 +148,7 @@ export default function CustomerPost({
         style={StyleSheet.absoluteFill}
       />
 
-      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
         <Animated.View pointerEvents="none" style={[styles.copiedToastWrap, { top: insets.top + 8 }, {
           opacity: copiedAnim,
           transform: [{ translateY: copiedAnim.interpolate({ inputRange: [0, 1], outputRange: [-8, 0] }) }],
@@ -327,6 +327,7 @@ function BottomNav({
   onOpenSettings?: () => void;
   onOpenPosts?: () => void;
 }) {
+  const insets = useSafeAreaInsets();
   const [active, setActive] = React.useState<BottomNavKey>('posts');
 
   const Item = ({ id, icon, label }: { id: BottomNavKey; icon: keyof typeof Ionicons.glyphMap; label: string }) => {
@@ -359,7 +360,7 @@ function BottomNav({
   };
 
   return (
-    <View style={styles.bottomNavWrap}>
+    <View style={[styles.bottomNavWrap, { bottom: 24 + insets.bottom }]}>
       <BlurView intensity={28} tint="dark" style={styles.bottomNav}>
         <Item id="home" icon="home-outline" label="Home" />
         <Item id="roofs" icon="grid-outline" label="Bookings" />

@@ -4,10 +4,10 @@ import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { triggerPressHaptic } from '../../utils/haptics';
 
-export default function AdminHome({ onBack, onOpenBookings, onOpenCalculator, onOpenComplains }: { onBack?: () => void; onOpenBookings?: () => void; onOpenCalculator?: () => void; onOpenComplains?: () => void }) {
+export default function AdminHome({ onBack, onOpenBookings, onOpenCalculator, onOpenComplains, onOpenStaff, onOpenAnalytics, onOpenSettings, onOpenAmc, onOpenCalendar }: { onBack?: () => void; onOpenBookings?: () => void; onOpenCalculator?: () => void; onOpenComplains?: () => void; onOpenStaff?: () => void; onOpenAnalytics?: () => void; onOpenSettings?: () => void; onOpenAmc?: () => void; onOpenCalendar?: () => void }) {
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
@@ -38,7 +38,7 @@ export default function AdminHome({ onBack, onOpenBookings, onOpenCalculator, on
               </View>
             </Pressable>
             {/* Translucent dropdown on right */}
-            <Pressable style={styles.glassDropdown} hitSlop={10} onPress={() => {}}>
+            <Pressable style={styles.glassDropdown} hitSlop={10} onPress={() => { }}>
               <BlurView intensity={24} tint="light" style={styles.glassDropdown}>
                 <View style={styles.dropdownInner}>
                   <Text style={styles.dropdownLabel}>All roofs</Text>
@@ -49,7 +49,7 @@ export default function AdminHome({ onBack, onOpenBookings, onOpenCalculator, on
           </View>
 
           {/* Scrollable Content */}
-          <ScrollView 
+          <ScrollView
             style={styles.scrollView}
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
@@ -59,46 +59,46 @@ export default function AdminHome({ onBack, onOpenBookings, onOpenCalculator, on
             <Text style={styles.titleMain}>Admin Dashboard</Text>
 
             {/* Stat cards with additional copies below each */}
-            <View style={styles.statsRowColumns}> 
+            <View style={styles.statsRowColumns}>
               {/* Column 1: Yellow then Dark copy below */}
-              <View style={styles.statsColumn}> 
+              <View style={styles.statsColumn}>
                 {/* Yellow card */}
-                <View style={[styles.statCard, styles.statCardYellow]}> 
+                <View style={[styles.statCard, styles.statCardYellow]}>
                   <Text style={styles.statLabel}>Bookings</Text>
                   <Text style={styles.statValue}>35</Text>
                   <Text style={styles.statSub}>View booking</Text>
-                  <View style={[styles.arrowPill, styles.arrowPillBlack]}> 
+                  <View style={[styles.arrowPill, styles.arrowPillBlack]}>
                     <Ionicons name="arrow-forward" size={16} color="#F5CE57" style={styles.arrowNE} />
                   </View>
                 </View>
                 {/* Dark copy below yellow */}
-                <View style={[styles.statCard, styles.statCardDark]}> 
+                <View style={[styles.statCard, styles.statCardDark]}>
                   <Text style={[styles.statLabel, { color: 'rgba(255,255,255,0.85)' }]}>Staff members</Text>
                   <Text style={[styles.statValue, { color: '#FFFFFF' }]}>3</Text>
                   <Text style={[styles.statSub, { color: 'rgba(255,255,255,0.75)' }]}>View staff</Text>
-                  <View style={[styles.arrowPill, styles.arrowPillAlt]}> 
+                  <View style={[styles.arrowPill, styles.arrowPillAlt]}>
                     <Ionicons name="arrow-forward" size={16} color="#1c1c1e" style={styles.arrowNE} />
                   </View>
                 </View>
               </View>
 
               {/* Column 2: Dark then Yellow copy below */}
-              <View style={styles.statsColumn}> 
+              <View style={styles.statsColumn}>
                 {/* Dark card */}
-                <View style={[styles.statCard, styles.statCardDark]}> 
+                <View style={[styles.statCard, styles.statCardDark]}>
                   <Text style={[styles.statLabel, { color: 'rgba(255,255,255,0.85)' }]}>AMC service</Text>
                   <Text style={[styles.statValue, { color: '#FFFFFF' }]}>3</Text>
                   <Text style={[styles.statSub, { color: 'rgba(255,255,255,0.75)' }]}>View AMC </Text>
-                  <View style={[styles.arrowPill, styles.arrowPillAlt]}> 
+                  <View style={[styles.arrowPill, styles.arrowPillAlt]}>
                     <Ionicons name="arrow-forward" size={16} color="#1c1c1e" style={styles.arrowNE} />
                   </View>
                 </View>
                 {/* Yellow copy below dark - Complains card clickable */}
-                <Pressable style={[styles.statCard, styles.statCardYellow]} onPress={() => onOpenComplains?.()} accessibilityRole="button" hitSlop={8}> 
+                <Pressable style={[styles.statCard, styles.statCardYellow]} onPress={() => onOpenComplains?.()} accessibilityRole="button" hitSlop={8}>
                   <Text style={styles.statLabel}>Complains filed</Text>
                   <Text style={styles.statValue}>35</Text>
                   <Text style={styles.statSub}>View complains</Text>
-                  <View style={[styles.arrowPill, styles.arrowPillBlack]}> 
+                  <View style={[styles.arrowPill, styles.arrowPillBlack]}>
                     <Ionicons name="arrow-forward" size={16} color="#F5CE57" style={styles.arrowNE} />
                   </View>
                 </Pressable>
@@ -151,7 +151,7 @@ export default function AdminHome({ onBack, onOpenBookings, onOpenCalculator, on
                   </View>
                 </View>
 
-                <Pressable style={styles.summaryButton} onPress={() => {}}>
+                <Pressable style={styles.summaryButton} onPress={() => { }}>
                   <Text style={styles.summaryButtonText}>View details</Text>
                   <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
                 </Pressable>
@@ -212,6 +212,7 @@ function GlassCard({ children, style }: { children?: React.ReactNode; style?: an
 
 // Bottom navigation component
 function BottomNav({ onOpenBookings, onOpenCalculator }: { onOpenBookings?: () => void; onOpenCalculator?: () => void }) {
+  const insets = useSafeAreaInsets();
   const [active, setActive] = React.useState<'home' | 'roofs' | 'calculator' | 'analytics' | 'settings'>('home');
 
   const Item = ({ id, icon, label }: { id: typeof active; icon: keyof typeof Ionicons.glyphMap; label: string }) => {
@@ -227,7 +228,7 @@ function BottomNav({ onOpenBookings, onOpenCalculator }: { onOpenBookings?: () =
   };
 
   return (
-    <View style={styles.bottomNavWrap}>
+    <View style={[styles.bottomNavWrap, { paddingBottom: insets.bottom > 0 ? insets.bottom : 22 }]}>
       <View style={styles.bottomNav}>
         <Item id="home" icon="home-outline" label="Home" />
         <Item id="roofs" icon="grid-outline" label="Bookings" />
@@ -561,7 +562,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 28,
     borderBottomRightRadius: 28,
     paddingVertical: 12,
-    paddingBottom: 22, // internal space for home indicator
+    // paddingBottom handled by wrapper with insets
     paddingHorizontal: 18,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },

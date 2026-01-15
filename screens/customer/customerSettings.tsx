@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
 import { triggerPressHaptic } from '../../utils/haptics';
 import { getAuthToken } from '../../utils/auth';
@@ -41,7 +41,7 @@ export default function CustomerSettingsScreen({ onBack, onSignOut, onOpenBookin
         end={{ x: 1.0, y: 1.0 }}
         style={styles.gradientBackground}
       >
-        <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
+        <SafeAreaView edges={['top']} style={styles.safeArea}>
           {/* Header */}
           <View style={styles.header}>
             <Pressable onPress={onBack} hitSlop={10} style={styles.backPill} accessibilityRole="button" accessibilityLabel="Go back">
@@ -120,16 +120,13 @@ function BottomNav({
   onOpenPosts?: () => void;
   onOpenSettings?: () => void;
 }) {
-  const [active, setActive] = React.useState<BottomNavKey>('settings');
+  const insets = useSafeAreaInsets();
+  const [active, setActive] = React.useState<'home' | 'roofs' | 'calculator' | 'posts' | 'settings'>('settings');
 
-  const Item = ({ id, icon, label }: { id: BottomNavKey; icon: keyof typeof Ionicons.glyphMap; label: string }) => {
+  const Item = ({ id, icon, label }: { id: typeof active; icon: keyof typeof Ionicons.glyphMap; label: string }) => {
     const isActive = active === id;
-    const isCalculator = id === 'calculator';
-    const buttonStyles = [
-      styles.navButton,
-      isCalculator ? styles.navButtonCalculator : (isActive ? styles.navButtonActive : styles.navButtonInactive),
-    ];
-    const iconColor = isCalculator ? '#1c1c1e' : (isActive ? '#1c1c1e' : 'rgba(255,255,255,0.95)');
+    const buttonStyles = [styles.navButton, isActive ? styles.navButtonActive : styles.navButtonInactive];
+    const iconColor = isActive ? '#1c1c1e' : 'rgba(255,255,255,0.95)';
 
     const handlePress = () => {
       void triggerPressHaptic();
@@ -138,7 +135,6 @@ function BottomNav({
       if (id === 'roofs') onOpenBookings?.();
       if (id === 'calculator') onOpenCalculator?.();
       if (id === 'posts') onOpenPosts?.();
-      if (id === 'settings') onOpenSettings?.();
     };
 
     return (
@@ -152,7 +148,7 @@ function BottomNav({
   };
 
   return (
-    <View style={styles.bottomNavWrap}>
+    <View style={[styles.bottomNavWrap, { bottom: 24 + insets.bottom }]}>
       <BlurView intensity={28} tint="dark" style={styles.bottomNav}>
         <Item id="home" icon="home-outline" label="Home" />
         <Item id="roofs" icon="grid-outline" label="Bookings" />

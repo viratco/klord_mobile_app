@@ -1,12 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, ImageBackground, Pressable, Image } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function Calculator({ onBack, onSelect }: { onBack?: () => void; onSelect?: (c: any) => void }) {
+  const insets = useSafeAreaInsets();
   const [selectedCategory, setSelectedCategory] = React.useState<'industrial' | 'residential' | 'commercial' | 'ground'>('industrial');
 
   const getCategoryImage = (category: typeof selectedCategory) => {
@@ -42,7 +43,7 @@ export default function Calculator({ onBack, onSelect }: { onBack?: () => void; 
           end={{ x: 1.0, y: 1.0 }}
           style={StyleSheet.absoluteFill}
         />
-        <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}> 
+        <SafeAreaView style={{ flex: 1 }} edges={['top']}>
           {/* Industrial info card */}
           <View style={styles.infoCardWrap}>
             <BlurView intensity={32} tint="light" style={styles.infoCard}>
@@ -67,9 +68,9 @@ export default function Calculator({ onBack, onSelect }: { onBack?: () => void; 
               {/* <Image source={getCategoryImage(selectedCategory)} style={styles.categoryImage} resizeMode="cover" /> */}
               <Text style={styles.infoText} numberOfLines={3} ellipsizeMode="tail">
                 {selectedCategory === 'industrial' ? 'Industrial solar panel systems are designed for large-scale energy production, featuring high-efficiency photovoltaic modules that can generate substantial power for manufacturing facilities, warehouses, and commercial operations. These robust systems offer significant cost savings, reduced carbon footprint, and long-term energy independence for industrial applications.' :
-                 selectedCategory === 'residential' ? 'Residential solar panel systems are ideal for homeowners looking to reduce electricity bills and contribute to environmental sustainability. These systems are designed to fit seamlessly on rooftops, providing clean energy for daily household needs while increasing property value.' :
-                 selectedCategory === 'commercial' ? 'Commercial solar installations cater to businesses, offices, and retail spaces, offering scalable solutions that lower operational costs and demonstrate corporate responsibility. With customizable designs, these systems maximize energy output in urban environments.' :
-                 'Ground-mounted solar systems are perfect for large open areas, providing high-capacity energy generation without the constraints of rooftop installations. These systems are highly efficient and ideal for agricultural, industrial, or community-scale projects.'}
+                  selectedCategory === 'residential' ? 'Residential solar panel systems are ideal for homeowners looking to reduce electricity bills and contribute to environmental sustainability. These systems are designed to fit seamlessly on rooftops, providing clean energy for daily household needs while increasing property value.' :
+                    selectedCategory === 'commercial' ? 'Commercial solar installations cater to businesses, offices, and retail spaces, offering scalable solutions that lower operational costs and demonstrate corporate responsibility. With customizable designs, these systems maximize energy output in urban environments.' :
+                      'Ground-mounted solar systems are perfect for large open areas, providing high-capacity energy generation without the constraints of rooftop installations. These systems are highly efficient and ideal for agricultural, industrial, or community-scale projects.'}
               </Text>
             </BlurView>
           </View>
@@ -88,7 +89,7 @@ export default function Calculator({ onBack, onSelect }: { onBack?: () => void; 
           <SlideShowSelector onSelectionChange={setSelectedCategory} />
 
           {/* Bottom translucent oval button */}
-          <View style={styles.bottomButtonWrap}>
+          <View style={[styles.bottomButtonWrap, { bottom: 24 + insets.bottom }]}>
             <Pressable style={styles.bottomButton} onPress={() => onSelect && onSelect(selectedCategory)}>
               <LinearGradient
                 colors={["rgba(255,255,255,0.45)", "rgba(255,255,255,0.18)"]}

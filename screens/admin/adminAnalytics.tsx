@@ -4,7 +4,7 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { triggerPressHaptic } from '../../utils/haptics';
 import Svg, { Path, Circle, Rect, Defs, LinearGradient as SvgLinearGradient, Stop, Text as SvgText } from 'react-native-svg';
 import { BASE_URL } from '../../utils/config';
@@ -23,7 +23,7 @@ interface BookingProgressData {
 }
 
 // Utilities to aggregate leads into time-series
-const monthLabels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const weekdayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 function computePercentFromLead(lead: any): number {
@@ -98,7 +98,7 @@ interface ChartProps {
 }
 
 // Build a smooth cubic bezier path from points
-function buildSmoothPath(points: {x:number;y:number}[]) {
+function buildSmoothPath(points: { x: number; y: number }[]) {
   if (!points.length) return '';
   if (points.length === 1) return `M${points[0].x},${points[0].y}`;
   const path: string[] = [];
@@ -213,7 +213,7 @@ const AdminYellowLineCard: React.FC<{
   const activeX = getX(activeIndex);
   const activeY = getYFromValue(series[activeIndex]?.y ?? 0);
   return (
-    <View style={[styles.card, styles.yellowCard]}> 
+    <View style={[styles.card, styles.yellowCard]}>
       <View style={styles.cardHeaderRow}>
         <View />
         <View style={styles.datePill}>
@@ -237,7 +237,7 @@ const AdminYellowLineCard: React.FC<{
             })}
 
             {/* Y-axis level labels (symmetric around baseline) */}
-            {([-maxAbs, -maxAbs/2, 0, maxAbs/2, maxAbs] as number[]).map((val, idx) => {
+            {([-maxAbs, -maxAbs / 2, 0, maxAbs / 2, maxAbs] as number[]).map((val, idx) => {
               const y = padding.top + getYFromValue(avg + val);
               return (
                 <SvgText
@@ -407,7 +407,7 @@ const BookingProgressChart: React.FC<ChartProps> = ({ data, timeFrame, width, he
               <Stop offset="100%" stopColor="#F5B422" stopOpacity="0.06" />
             </SvgLinearGradient>
           </Defs>
-          
+
           {/* Grid lines */}
           {ticks.map((value, idx) => {
             const y = padding.top + getY(value);
@@ -421,7 +421,7 @@ const BookingProgressChart: React.FC<ChartProps> = ({ data, timeFrame, width, he
               />
             );
           })}
-          
+
           {/* Vertical highlight bar */}
           <Rect
             x={padding.left + activeX - 18}
@@ -442,7 +442,7 @@ const BookingProgressChart: React.FC<ChartProps> = ({ data, timeFrame, width, he
             strokeLinejoin="round"
             transform={`translate(${padding.left}, ${padding.top})`}
           />
-          
+
           {/* Active dot */}
           <Circle
             cx={padding.left + activeX}
@@ -475,7 +475,7 @@ const BookingProgressChart: React.FC<ChartProps> = ({ data, timeFrame, width, he
           >
             {`${data[activeIndex]?.y ?? 0}`}
           </SvgText>
-          
+
           {/* Y-axis labels (symmetric) */}
           {ticks.map((value, idx) => (
             <SvgText
@@ -503,11 +503,11 @@ const BookingProgressChart: React.FC<ChartProps> = ({ data, timeFrame, width, he
               {typeof p.label === 'string' ? p.label : `${p.x}`}
             </SvgText>
           ))}
-          
+
           {/* X-axis labels */}
           {data.map((point, index) => {
             if (timeFrame === 'yearly' || index % 5 === 0) {
-              const label = timeFrame === 'yearly' 
+              const label = timeFrame === 'yearly'
                 ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][index]
                 : point.x.toString();
               return (
@@ -544,7 +544,7 @@ const BookingProgressChart: React.FC<ChartProps> = ({ data, timeFrame, width, he
                 fill="#1c1c1e"
                 textAnchor="middle"
               >
-                
+
               </SvgText>
             </>
           )}
@@ -607,7 +607,7 @@ const StepsCompletionChart: React.FC<ChartProps & { maxSteps: number }> = ({ dat
               <Stop offset="100%" stopColor="#1c1c1e" stopOpacity="0.05" />
             </SvgLinearGradient>
           </Defs>
-          
+
           {/* Grid lines */}
           {Array.from({ length: 5 }, (_, i) => Math.round((i * maxY) / 4)).map((value) => {
             const y = padding.top + getY(value);
@@ -621,7 +621,7 @@ const StepsCompletionChart: React.FC<ChartProps & { maxSteps: number }> = ({ dat
               />
             );
           })}
-          
+
           {/* Area fill */}
           <Path
             d={areaPath}
@@ -638,9 +638,9 @@ const StepsCompletionChart: React.FC<ChartProps & { maxSteps: number }> = ({ dat
             strokeLinejoin="round"
             transform={`translate(${padding.left}, ${padding.top})`}
           />
-          
+
           {/* No point markers per request */}
-          
+
           {/* Y-axis labels */}
           {Array.from({ length: 5 }, (_, i) => Math.round((i * maxY) / 4)).map((value) => (
             <SvgText
@@ -654,11 +654,11 @@ const StepsCompletionChart: React.FC<ChartProps & { maxSteps: number }> = ({ dat
               {value}
             </SvgText>
           ))}
-          
+
           {/* X-axis labels */}
           {data.map((point, index) => {
             if (timeFrame === 'yearly' || index % 5 === 0) {
-              const label = timeFrame === 'yearly' 
+              const label = timeFrame === 'yearly'
                 ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][index]
                 : point.x.toString();
               return (
@@ -778,13 +778,13 @@ export default function AdminAnalytics({ onBack, onGoHome, onOpenBookings, onOpe
     <View style={styles.container}>
       <StatusBar style="dark" />
       <LinearGradient
-        colors={[ '#ECECEC', '#E6E6E8', '#EDE5D6', '#F3DDAF', '#F7CE73' ]}
+        colors={['#ECECEC', '#E6E6E8', '#EDE5D6', '#F3DDAF', '#F7CE73']}
         locations={[0, 0.18, 0.46, 0.74, 1]}
         start={{ x: 0.0, y: 0.1 }}
         end={{ x: 1.0, y: 1.0 }}
         style={styles.gradientBackground}
       >
-        <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
+        <SafeAreaView edges={['top']} style={styles.safeArea}>
           <View style={styles.header}>
             <Pressable onPress={onBack} hitSlop={10} style={styles.backPill}>
               <Ionicons name="arrow-back" size={20} color="#1c1c1e" />
@@ -792,23 +792,23 @@ export default function AdminAnalytics({ onBack, onGoHome, onOpenBookings, onOpe
             <Text style={styles.title}>Booking Analytics</Text>
           </View>
 
-          <ScrollView 
-            style={styles.scrollView} 
-            contentContainerStyle={styles.scrollContent} 
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
           >
             {/* Time Frame Selector */}
             <View style={styles.timeFrameContainer}>
               <Text style={styles.sectionTitle}>Time Frame</Text>
               <View style={styles.timeFrameRow}>
-                <Pressable 
+                <Pressable
                   style={[styles.timeFramePill, timeFrame === 'monthly' && styles.timeFramePillActive]}
                   onPress={() => setTimeFrame('monthly')}
                 >
                   <Ionicons name="calendar-outline" size={16} color={timeFrame === 'monthly' ? '#FFFFFF' : '#1c1c1e'} />
                   <Text style={[styles.timeFrameText, timeFrame === 'monthly' && styles.timeFrameTextActive]}>Monthly (1-31)</Text>
                 </Pressable>
-                <Pressable 
+                <Pressable
                   style={[styles.timeFramePill, timeFrame === 'yearly' && styles.timeFramePillActive]}
                   onPress={() => setTimeFrame('yearly')}
                 >
@@ -869,7 +869,7 @@ export default function AdminAnalytics({ onBack, onGoHome, onOpenBookings, onOpe
 
           </ScrollView>
         </SafeAreaView>
-        
+
         {/* Bottom navigation */}
         <BottomNav
           onGoHome={onGoHome}
@@ -883,6 +883,7 @@ export default function AdminAnalytics({ onBack, onGoHome, onOpenBookings, onOpe
 }
 
 function BottomNav({ onGoHome, onOpenBookings, onOpenStaff, onOpenSettings }: { onGoHome?: () => void; onOpenBookings?: () => void; onOpenStaff?: () => void; onOpenSettings?: () => void }) {
+  const insets = useSafeAreaInsets();
   const [active, setActive] = React.useState<'home' | 'roofs' | 'staff' | 'analytics' | 'settings'>('analytics');
 
   const Item = ({ id, icon, label }: { id: typeof active; icon: keyof typeof Ionicons.glyphMap; label: string }) => {
@@ -914,7 +915,7 @@ function BottomNav({ onGoHome, onOpenBookings, onOpenStaff, onOpenSettings }: { 
   };
 
   return (
-    <View style={styles.bottomNavWrap}>
+    <View style={[styles.bottomNavWrap, { bottom: 24 + insets.bottom }]}>
       <BlurView intensity={28} tint="dark" style={styles.bottomNav}>
         <Item id="home" icon="home-outline" label="Home" />
         <Item id="roofs" icon="grid-outline" label="Bookings" />
@@ -927,19 +928,19 @@ function BottomNav({ onGoHome, onOpenBookings, onOpenStaff, onOpenSettings }: { 
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: '#F4F4F6' 
+  container: {
+    flex: 1,
+    backgroundColor: '#F4F4F6'
   },
-  gradientBackground: { 
-    flex: 1, 
-    width: '100%', 
-    height: '100%' 
+  gradientBackground: {
+    flex: 1,
+    width: '100%',
+    height: '100%'
   },
-  safeArea: { 
-    flex: 1 
+  safeArea: {
+    flex: 1
   },
-  
+
   // Header
   header: {
     paddingTop: 18,
@@ -959,19 +960,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.8)'
   },
-  title: { 
-    fontSize: 22, 
-    fontWeight: '700', 
-    color: '#1c1c1e' 
+  title: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#1c1c1e'
   },
-  
+
   // ScrollView
   scrollView: {
     flex: 1,
   },
-  scrollContent: { 
-    paddingHorizontal: 16, 
-    paddingTop: 8, 
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingTop: 8,
     paddingBottom: 160,
     gap: 16,
   },
@@ -1010,7 +1011,7 @@ const styles = StyleSheet.create({
     color: '#1c1c1e',
     fontWeight: '700',
   },
-  
+
   // Time Frame Selector
   timeFrameContainer: {
     marginBottom: 8,
@@ -1050,7 +1051,7 @@ const styles = StyleSheet.create({
   timeFrameTextActive: {
     color: '#FFFFFF',
   },
-  
+
   // Metrics Row
   metricsRow: {
     flexDirection: 'row',
@@ -1082,14 +1083,14 @@ const styles = StyleSheet.create({
     color: 'rgba(28,28,30,0.6)',
     textAlign: 'center',
   },
-  
+
   // Charts
   chartWrapper: {
     alignItems: 'stretch',
     marginTop: 8,
     width: '100%',
   },
-  
+
   // Cards
   card: {
     borderRadius: 18,
@@ -1114,15 +1115,15 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 8,
   },
-  cardTitleDark: { 
-    fontSize: 16, 
-    fontWeight: '700', 
-    color: '#1c1c1e' 
+  cardTitleDark: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1c1c1e'
   },
-  legendTextDark: { 
-    fontSize: 12, 
+  legendTextDark: {
+    fontSize: 12,
     fontWeight: '500',
-    color: '#1c1c1e' 
+    color: '#1c1c1e'
   },
   cardHeaderRow: {
     flexDirection: 'row',
@@ -1130,25 +1131,25 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 16,
   },
-  cardTitle: { 
-    fontSize: 16, 
-    fontWeight: '700', 
-    color: '#1c1c1e' 
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1c1c1e'
   },
-  legendRow: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    gap: 8 
+  legendRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8
   },
-  legendDot: { 
-    width: 10, 
-    height: 10, 
-    borderRadius: 5 
+  legendDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5
   },
-  legendText: { 
-    fontSize: 12, 
+  legendText: {
+    fontSize: 12,
     fontWeight: '500',
-    color: '#1c1c1e' 
+    color: '#1c1c1e'
   },
 
   // Custom boxes row
@@ -1314,7 +1315,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     color: 'rgba(28,28,30,0.8)',
   },
-  
+
   // Bottom Navigation
   bottomNavWrap: {
     position: 'absolute',

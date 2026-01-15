@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
@@ -118,7 +118,7 @@ const StaffAnalytics: React.FC<StaffAnalyticsProps> = ({ onBack, onGoHome, onOpe
         end={{ x: 1.0, y: 1.0 }}
         style={styles.gradientBackground}
       >
-        <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
+        <SafeAreaView edges={['top']} style={styles.safeArea}>
           <View style={styles.headerRow}>
             <Pressable onPress={onBack} hitSlop={10}>
               <BlurView intensity={24} tint="light" style={styles.backPill}>
@@ -179,7 +179,7 @@ const StaffAnalytics: React.FC<StaffAnalyticsProps> = ({ onBack, onGoHome, onOpe
           <BottomNav
             onGoHome={onGoHome}
             onOpenTasks={onOpenTasks}
-            onOpenAnalytics={() => {}}
+            onOpenAnalytics={() => { }}
             onOpenSettings={onOpenSettings}
           />
         </SafeAreaView>
@@ -266,6 +266,7 @@ const BottomNav: React.FC<{
   onOpenAnalytics?: () => void;
   onOpenSettings?: () => void;
 }> = ({ onGoHome, onOpenTasks, onOpenAnalytics, onOpenSettings }) => {
+  const insets = useSafeAreaInsets();
   const [active, setActive] = React.useState<'home' | 'tasks' | 'analytics' | 'settings'>('analytics');
 
   const Item = ({ id, icon, label }: { id: typeof active; icon: keyof typeof Ionicons.glyphMap; label: string }) => {
@@ -293,7 +294,7 @@ const BottomNav: React.FC<{
   };
 
   return (
-    <View style={styles.bottomNavWrap}>
+    <View style={[styles.bottomNavWrap, { bottom: 24 + insets.bottom }]}>
       <BlurView intensity={28} tint="dark" style={styles.bottomNav}>
         <Item id="home" icon="home-outline" label="Home" />
         <Item id="tasks" icon="list-outline" label="Tasks" />

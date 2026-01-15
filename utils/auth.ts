@@ -48,9 +48,12 @@ export async function getUserRole(): Promise<'customer' | 'staff' | 'admin' | nu
 }
 
 import auth from '@react-native-firebase/auth';
+import { invalidateCache } from './cache';
 
 export async function clearAuth(): Promise<void> {
   try {
+    // Clear all in-memory data cache
+    invalidateCache();
     await AsyncStorage.removeItem('auth_token');
     await AsyncStorage.removeItem('user_role');
     await auth().signOut();

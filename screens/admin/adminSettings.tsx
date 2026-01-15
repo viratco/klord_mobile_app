@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
 import { triggerPressHaptic } from '../../utils/haptics';
 
@@ -30,13 +30,13 @@ export default function AdminSettingsScreen({
     <View style={styles.container}>
       <StatusBar style="dark" />
       <LinearGradient
-        colors={[ '#ECECEC', '#E6E6E8', '#EDE5D6', '#F3DDAF', '#F7CE73' ]}
+        colors={['#ECECEC', '#E6E6E8', '#EDE5D6', '#F3DDAF', '#F7CE73']}
         locations={[0, 0.18, 0.46, 0.74, 1]}
         start={{ x: 0.0, y: 0.1 }}
         end={{ x: 1.0, y: 1.0 }}
         style={styles.gradientBackground}
       >
-        <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
+        <SafeAreaView edges={['top']} style={styles.safeArea}>
           {/* Header */}
           <View style={styles.header}>
             <Pressable onPress={onBack} hitSlop={10} style={styles.backPill}>
@@ -64,19 +64,19 @@ export default function AdminSettingsScreen({
             {/* Account section */}
             <Text style={styles.sectionTitle}>Account</Text>
             <BlurView intensity={22} tint="light" style={styles.card}>
-              <Row icon="person-outline" label="Profile" onPress={() => {}} />
+              <Row icon="person-outline" label="Profile" onPress={() => { }} />
               <View style={styles.divider} />
-              <Row icon="mail-outline" label="Notifications" onPress={() => {}} />
+              <Row icon="mail-outline" label="Notifications" onPress={() => { }} />
               <View style={styles.divider} />
-              <Row icon="key-outline" label="Change Password" onPress={() => {}} />
+              <Row icon="key-outline" label="Change Password" onPress={() => { }} />
             </BlurView>
 
             {/* App section */}
             <Text style={styles.sectionTitle}>App</Text>
             <BlurView intensity={22} tint="light" style={styles.card}>
-              <Row icon="color-palette-outline" label="Appearance" onPress={() => {}} />
+              <Row icon="color-palette-outline" label="Appearance" onPress={() => { }} />
               <View style={styles.divider} />
-              <Row icon="information-circle-outline" label="About" onPress={() => {}} />
+              <Row icon="information-circle-outline" label="About" onPress={() => { }} />
             </BlurView>
 
             {/* Sign out */}
@@ -123,6 +123,7 @@ function BottomNav({
   onOpenAnalytics?: () => void;
   onOpenSettings?: () => void;
 }) {
+  const insets = useSafeAreaInsets();
   const [active, setActive] = React.useState<AdminNavKey>('settings');
 
   const Item = ({ id, icon, label }: { id: AdminNavKey; icon: keyof typeof Ionicons.glyphMap; label: string }) => {
@@ -155,7 +156,7 @@ function BottomNav({
   };
 
   return (
-    <View style={styles.bottomNavWrap}>
+    <View style={[styles.bottomNavWrap, { bottom: 24 + insets.bottom }]}>
       <BlurView intensity={28} tint="dark" style={styles.bottomNav}>
         <Item id="home" icon="home-outline" label="Home" />
         <Item id="roofs" icon="grid-outline" label="Bookings" />

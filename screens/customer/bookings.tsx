@@ -5,7 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getAuthToken } from '../../utils/auth';
 import { triggerPressHaptic } from '../../utils/haptics';
 import { fetchWithCache, getCachedValue, invalidateCache } from '../../utils/cache';
@@ -212,6 +212,7 @@ function BottomNav({
   onOpenSettings?: () => void;
   onOpenPosts?: () => void;
 }) {
+  const insets = useSafeAreaInsets();
   const [active, setActive] = React.useState<'home' | 'roofs' | 'calculator' | 'posts' | 'settings'>('roofs');
 
   const Item = ({ id, icon, label }: { id: typeof active; icon: keyof typeof Ionicons.glyphMap; label: string }) => {
@@ -244,7 +245,7 @@ function BottomNav({
   };
 
   return (
-    <View style={styles.bottomNavWrap}>
+    <View style={[styles.bottomNavWrap, { bottom: 24 + insets.bottom }]}>
       <BlurView intensity={28} tint="dark" style={styles.bottomNav}>
         <Item id="home" icon="home-outline" label="Home" />
         <Item id="roofs" icon="grid-outline" label="Bookings" />
